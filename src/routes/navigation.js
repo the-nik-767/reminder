@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screen/home';
@@ -12,10 +12,10 @@ import OTPVerification from '../screen/OTPVerification';
 import ForgotPassword from '../screen/ForgotPassword';
 import ResetPassword from '../screen/ResetPassword';
 import AddNewCustomer from '../screen/AddNewCustomer';
-import { color, responsiveHeight, responsiveWidth } from '../constant/theme';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {color, responsiveHeight, responsiveWidth} from '../constant/theme';
+import {Image, StyleSheet, Text, View} from 'react-native';
 import ProfileScreen from '../screen/Profile';
-import { icons } from '../assets';
+import {icons} from '../assets';
 import CustomerScreen from '../screen/Customer';
 import ReminderScreen from '../screen/Reminder';
 import Home from '../assets/svgs/home.svg';
@@ -24,13 +24,11 @@ import Reminder from '../assets/svgs/notification.svg';
 import Profile from '../assets/svgs/profile.svg';
 import CustomerDetails from '../screen/CustomerDetails';
 
-
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainNavigator() {
-	return (
+  return (
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{
@@ -64,7 +62,7 @@ function MyTabs() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: color.primary,
-          height: responsiveWidth('15%'),
+          // height: responsiveWidth('15%'),
           paddingBottom: 0,
           paddingTop: 8,
           ...styles.shadow,
@@ -171,7 +169,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     width: responsiveWidth('20%'),
     color: color.white,
-  }
+  },
 });
 
 export default MainNavigator;

@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import {StyleSheet, View, Image, Text} from 'react-native';
-import { NavigationProp, StackActions } from '@react-navigation/native';
+import {NavigationProp, StackActions} from '@react-navigation/native';
 
 import {color, fontSize, responsiveWidth} from '../../constant/theme';
 import {icons} from '../../assets';
@@ -26,11 +26,11 @@ const SplashScreen = () => {
     const checkUserData = async () => {
       try {
         const token = await AsyncStorage.getItem('USER_TOKEN');
-        
+
         if (token) {
           navigation.dispatch(StackActions.replace('HomeScreen'));
         } else {
-          navigation.dispatch(StackActions.replace('Login'));
+          navigation.dispatch(StackActions.replace('HomeScreen'));
         }
       } catch (error) {
         console.error('Error checking auth:', error);
@@ -50,7 +50,14 @@ const SplashScreen = () => {
         alignItems: 'center',
       }}>
       <Icon width={100} height={100} />
-      <Text style={{fontSize: fontSize.xxbigger, color: color.white, fontWeight: "500"}}>Reminder</Text>
+      <Text
+        style={{
+          fontSize: fontSize.xxbigger,
+          color: color.white,
+          fontWeight: '500',
+        }}>
+        Reminder
+      </Text>
     </View>
   );
 };

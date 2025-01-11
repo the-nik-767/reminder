@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import Date from '../../assets/svgs/Date.svg';
 import Business from '../../assets/svgs/business.svg';
 import Celender from '../../assets/svgs/celender.svg';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {MainContainer} from '../../components';
 
 const reminderData = [
   {
@@ -40,63 +41,77 @@ const ReminderScreen = ({navigation}) => {
   const [activeTab, setActiveTab] = useState('Today');
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Remindersr</Text>
-        <TouchableOpacity
-          style={styles.filterButton}
-          onPress={() => navigation.navigate('AddReminder')}>
-          <MaterialIcons name="tune" size={24} color={color.primary} />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity 
-            style={styles.tabButton}
-            onPress={() => setActiveTab('Upcoming')}
-          >
-            <Text style={[
-              styles.tabText, 
-              activeTab === 'Upcoming' && styles.activeTabText
-            ]}>Upcoming</Text>
-            <View style={[
-              styles.tabIndicator,
-              activeTab === 'Upcoming' && styles.activeIndicator
-            ]} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.tabButton, styles.middleTab]}
-            onPress={() => setActiveTab('Today')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'Today' && styles.activeTabText
-            ]}>Today</Text>
-            <View style={[
-              styles.tabIndicator,
-              activeTab === 'Today' && styles.activeIndicator
-            ]} />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.tabButton}
-            onPress={() => setActiveTab('Past')}
-          >
-            <Text style={[
-              styles.tabText,
-              activeTab === 'Past' && styles.activeTabText
-            ]}>Past</Text>
-            <View style={[
-              styles.tabIndicator,
-              activeTab === 'Past' && styles.activeIndicator
-            ]} />
+    <MainContainer>
+      <SafeAreaView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Remindersr</Text>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() => navigation.navigate('AddReminder')}>
+            <MaterialIcons name="tune" size={24} color={color.primary} />
           </TouchableOpacity>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <ScrollView style={styles.scrollView}>
+          <View style={styles.tabContainer}>
+            <TouchableOpacity
+              style={styles.tabButton}
+              onPress={() => setActiveTab('Upcoming')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'Upcoming' && styles.activeTabText,
+                ]}>
+                Upcoming
+              </Text>
+              <View
+                style={[
+                  styles.tabIndicator,
+                  activeTab === 'Upcoming' && styles.activeIndicator,
+                ]}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.tabButton, styles.middleTab]}
+              onPress={() => setActiveTab('Today')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'Today' && styles.activeTabText,
+                ]}>
+                Today
+              </Text>
+              <View
+                style={[
+                  styles.tabIndicator,
+                  activeTab === 'Today' && styles.activeIndicator,
+                ]}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.tabButton}
+              onPress={() => setActiveTab('Past')}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'Past' && styles.activeTabText,
+                ]}>
+                Past
+              </Text>
+              <View
+                style={[
+                  styles.tabIndicator,
+                  activeTab === 'Past' && styles.activeIndicator,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </MainContainer>
   );
 };
 
@@ -361,11 +376,11 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#D5D8D5',
     marginTop: 5,
-    width: '40%'
+    width: '40%',
   },
   activeIndicator: {
     backgroundColor: color.primary,
-  }
+  },
 });
 
 export default ReminderScreen;

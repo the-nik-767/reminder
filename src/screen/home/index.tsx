@@ -2,18 +2,21 @@
 
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import { color } from '../../constant/theme';
-import { useNavigation } from '@react-navigation/native';
+import {color} from '../../constant/theme';
+import {useNavigation} from '@react-navigation/native';
+import {MainContainer} from '../../components';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Hello World, my name is [Your Name]</Text>
-      <TouchableOpacity onPress={() => navigation.navigate('AddNewCustomer')}>
-        <Text style={styles.text}>Add New Customer</Text>
-      </TouchableOpacity>
-    </View>
+    <MainContainer>
+      <View style={styles.container}>
+        <Text style={styles.text}>Hello World, my name is [Your Name]</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('AddNewCustomer')}>
+          <Text style={styles.text}>Add New Customer</Text>
+        </TouchableOpacity>
+      </View>
+    </MainContainer>
   );
 };
 
