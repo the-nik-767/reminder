@@ -1,0 +1,14 @@
+{
+	"greet": "नमस्ते मेरे दोस्त",
+	"name": "नाम",
+	"menSWear": "पुरुषों के कपड़े",
+	"womenSWear": "महिलाओं के कपड़े",
+	"design": "डिज़ाइन",
+	"measurements": "माप",
+	"submit": "जमा करें",
+	"OkDone": "ठीक है, हो गया",
+	"search": "खोज",
+	"profile": "प्रोफ़ाइल",
+	"validationError": "सत्यापन त्रुटि",
+	 "valueIsRequired":"मान आवश्यक है."
+}

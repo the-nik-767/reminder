@@ -1,0 +1,14 @@
+{
+	"greet": "હેલો મારો મિત્ર",
+	"name": "નામ",
+	"menSWear": "પુરુષોના કપડાં",
+	"womenSWear": "સ્ત્રીઓના કપડાં",
+	"design": "ડિઝાઇન",
+	"measurements": "માપ",
+	"submit": "સબમિટ કરો",
+	"OkDone": "બરાબર, પૂરૂં",
+	"search": "શોધ",
+	"profile": "પ્રોફાઇલ",
+	"validationError": "માન્યતા ભૂલ",
+     "valueIsRequired":"મૂલ્ય જરૂરી છે."
+}

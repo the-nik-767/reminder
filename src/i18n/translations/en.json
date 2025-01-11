@@ -1,0 +1,14 @@
+{
+    "greet":"hellow my fn",
+    "name":"Name",
+    "menSWear":"Men's wear",
+    "womenSWear" :"Women's wear",
+    "design":"Design",
+    "measurements":"Measurements",
+    "submit":"Submit",
+    "OkDone":"Ok, Done",
+    "search" :"Search",
+    "profile":"Profile",
+    "validationError":"Validation Error",
+    "valueIsRequired":"value is required."
+}
