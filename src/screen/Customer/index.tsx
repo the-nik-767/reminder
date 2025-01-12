@@ -1,149 +1,174 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList,
   TextInput,
-  ActivityIndicator,
+  FlatList,
 } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
-import {MainContainer} from '../../components';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { MainContainer } from '../../components';
 
-interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-  status: 'active' | 'inactive';
-  created_at: string;
-}
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+// Color palette for avatars
+const AVATAR_COLORS = {
+  A: '#E8EAF6',
+  B: '#E3F2FD',
+  C: '#E0F7FA',
+  D: '#E0F2F1',
+  E: '#E8F5E9',
+  F: '#F1F8E9',
+  G: '#F9FBE7',
+  H: '#FFFDE7',
+  I: '#FFF8E1',
+  J: '#FFF3E0',
+  K: '#FBE9E7',
+  L: '#FFEBEE',
+  M: '#FCE4EC',
+  N: '#F3E5F5',
+  O: '#EDE7F6',
+  P: '#E8EAF6',
+  Q: '#E3F2FD',
+  R: '#E1F5FE',
+  S: '#E0F7FA',
+  T: '#E0F2F1',
+  U: '#E8F5E9',
+  V: '#F1F8E9',
+  W: '#F9FBE7',
+  X: '#FFFDE7',
+  Y: '#FFF8E1',
+  Z: '#FFF3E0',
+};
+
+const customerData = [
+  { id: '1', name: 'Aadhya Patel', phone: '+91 98855 89566' },
+  { id: '2', name: 'Aadvika Patel', phone: '+91 98855 89566' },
+  { id: '3', name: 'Aaron Patel', phone: '+91 98855 89566' },
+  { id: '4', name: 'Alexander Patel', phone: '+91 98855 89566' },
+  { id: '5', name: 'Andrew Patel', phone: '+91 98855 89566' },
+  { id: '6', name: 'Adam Patel', phone: '+91 98855 89566' },
+  { id: '7', name: 'Bhavya Patel', phone: '+91 98855 89566' },
+  { id: '8', name: 'Chetan Patel', phone: '+91 98855 89566' },
+  { id: '9', name: 'Dhruv Patel', phone: '+91 98855 89566' },
+  // Add more customers with different starting letters
+];
 
 const CustomerScreen = () => {
-  const navigation = useNavigation();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [selectedLetter, setSelectedLetter] = useState('');
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  useEffect(() => {
-    filterCustomers();
-  }, [searchQuery, customers]);
-
-  const fetchCustomers = async () => {
-    try {
-      // Replace with your API call
-      const response = await fetch('YOUR_API_ENDPOINT');
-      const data = await response.json();
-      setCustomers(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      setLoading(false);
-    }
-  };
-
-  const filterCustomers = () => {
-    const filtered = customers.filter(
-      customer =>
+  // Filter customers based on search query and selected letter
+  const filteredCustomers = useCallback(() => {
+    let filtered = [...customerData];
+    
+    if (searchQuery) {
+      filtered = filtered.filter(customer => 
         customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.phone.includes(searchQuery) ||
-        customer.email.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-    setFilteredCustomers(filtered);
+        customer.phone.includes(searchQuery)
+      );
+    }
+    
+    if (selectedLetter) {
+      filtered = filtered.filter(customer => 
+        customer.name.toUpperCase().startsWith(selectedLetter)
+      );
+    }
+    
+    return filtered;
+  }, [searchQuery, selectedLetter]);
+
+  const getAvatarColor = (name: string) => {
+    const firstLetter = name[0].toUpperCase();
+    return AVATAR_COLORS[firstLetter] || '#E8EAF6';
   };
 
-  const renderCustomerCard = ({item}: {item: Customer}) => (
-    <TouchableOpacity
-      style={styles.customerCard}
-      onPress={() =>
-        navigation.navigate('CustomerDetails', {customerId: item.id})
-      }>
+  const renderCustomerItem = ({ item }) => (
+    <TouchableOpacity style={styles.customerItem}>
       <View style={styles.customerInfo}>
-        <View style={styles.nameContainer}>
+        <View style={[styles.avatar, { backgroundColor: getAvatarColor(item.name) }]}>
+          <Text style={styles.avatarText}>{item.name[0]}</Text>
+        </View>
+        <View style={styles.customerDetails}>
           <Text style={styles.customerName}>{item.name}</Text>
-          <View
-            style={[
-              styles.statusBadge,
-              {
-                backgroundColor:
-                  item.status === 'active' ? '#E8F5E9' : '#FFEBEE',
-              },
-            ]}>
-            <Text
-              style={[
-                styles.statusText,
-                {color: item.status === 'active' ? '#2E7D32' : '#C62828'},
-              ]}>
-              {item.status.toUpperCase()}
-            </Text>
+          <View style={styles.phoneContainer}>
+            <Icon name="call-outline" size={14} color="#8E8E93" />
+            <Text style={styles.phoneNumber}>{item.phone}</Text>
           </View>
         </View>
-        <View style={styles.contactInfo}>
-          <MaterialIcons name="phone" size={16} color="#666" />
-          <Text style={styles.contactText}>{item.phone}</Text>
-        </View>
-        <View style={styles.contactInfo}>
-          <MaterialIcons name="email" size={16} color="#666" />
-          <Text style={styles.contactText}>{item.email}</Text>
-        </View>
       </View>
-      <MaterialIcons name="chevron-right" size={24} color="#666" />
+      <TouchableOpacity>
+        <Icon name="notifications-outline" size={22} color="#007AFF" />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+
+  const renderAlphabetItem = ({ item }) => (
+    <TouchableOpacity 
+      style={[
+        styles.alphabetItem,
+        selectedLetter === item && styles.selectedAlphabetItem
+      ]}
+      onPress={() => {
+        setSelectedLetter(selectedLetter === item ? '' : item);
+      }}
+    >
+      <Text style={[
+        styles.alphabetText,
+        selectedLetter === item && styles.selectedAlphabetText
+      ]}>{item}</Text>
     </TouchableOpacity>
   );
 
   return (
     <MainContainer>
       <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Customers</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => navigation.navigate('AddNewCustomer')}>
-            <MaterialIcons name="add" size={24} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
+        <Text style={styles.title}>Customers</Text>
+        
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <MaterialIcons name="search" size={24} color="#666" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search customers..."
+            placeholder="Search Customers"
+            placeholderTextColor="#8E8E93"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
+          <Icon name="search" size={20} color="#007AFF" />
         </View>
 
-        {/* Customer List */}
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#0047AF"
-            style={styles.loader}
-          />
-        ) : (
-          <FlatList
-            data={filteredCustomers}
-            renderItem={renderCustomerCard}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.listContainer}
-            showsVerticalScrollIndicator={false}
-            ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <MaterialIcons name="people-outline" size={48} color="#666" />
-                <Text style={styles.emptyText}>No customers found</Text>
-              </View>
-            }
-          />
-        )}
+        {/* Main Content */}
+        <View style={styles.mainContent}>
+          {/* Customer List */}
+          <View style={styles.customerListContainer}>
+            <FlatList
+              data={filteredCustomers()}
+              renderItem={renderCustomerItem}
+              keyExtractor={item => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.customerList}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          </View>
+
+          {/* Alphabet List */}
+          <View style={styles.alphabetList}>
+            <FlatList
+              data={ALPHABET}
+              renderItem={renderAlphabetItem}
+              keyExtractor={item => item}
+              showsVerticalScrollIndicator={false}
+            />
+          </View>
+        </View>
+
+        {/* Add Button */}
+        <View style={styles.addButtonContainer}>
+          <TouchableOpacity style={styles.addButton}>
+            <Icon name="add" size={32} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
       </View>
     </MainContainer>
   );
@@ -152,114 +177,144 @@ const CustomerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E1E1E1',
+    backgroundColor: '#F2F2F7',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#333',
-    fontFamily: 'Inter',
-  },
-  addButton: {
-    backgroundColor: '#0047AF',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    fontSize: 32,
+    fontWeight: '700',
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    color: '#000000',
   },
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    margin: 16,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 16,
+    marginBottom: 8,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E1E1E1',
+    borderRadius: 10,
+    height: 44,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    fontSize: 16,
-    fontFamily: 'Inter',
+    fontSize: 17,
+    marginRight: 8,
+    color: '#000000',
   },
-  listContainer: {
-    padding: 16,
+  mainContent: {
+    flex: 1,
+    flexDirection: 'row',
   },
-  customerCard: {
+  customerListContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  customerList: {
+    paddingTop: 8,
+  },
+  customerItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E1E1E1',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
   },
   customerInfo: {
-    flex: 1,
-  },
-  nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    flex: 1,
+  },
+  avatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  avatarText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  customerDetails: {
+    flex: 1,
   },
   customerName: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginRight: 8,
-    fontFamily: 'Inter',
+    fontSize: 17,
+    fontWeight: '400',
+    marginBottom: 4,
+    color: '#000000',
   },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    fontFamily: 'Inter',
-  },
-  contactInfo: {
+  phoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
   },
-  contactText: {
-    marginLeft: 8,
-    color: '#666',
+  phoneNumber: {
     fontSize: 14,
-    fontFamily: 'Inter',
+    color: '#8E8E93',
+    marginLeft: 4,
   },
-  loader: {
-    flex: 1,
+  separator: {
+    height: 1,
+    backgroundColor: '#E5E5EA',
+    marginLeft: 64,
+  },
+  alphabetList: {
+    width: 28,
+    backgroundColor: 'transparent',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  alphabetItem: {
+    paddingVertical: 2,
+  },
+  alphabetText: {
+    fontSize: 11,
+    color: '#007AFF',
+    fontWeight: '500',
+  },
+  selectedAlphabetItem: {
+    backgroundColor: '#007AFF',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  emptyContainer: {
-    flex: 1,
+  selectedAlphabetText: {
+    color: '#FFFFFF',
+  },
+  addButtonContainer: {
+    position: 'absolute',
+    bottom: 16,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  addButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 100,
-  },
-  emptyText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#666',
-    fontFamily: 'Inter',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    elevation: 8,
   },
 });
 
