@@ -8,7 +8,9 @@ import {
   FlatList,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { MainContainer } from '../../components';
+import FilterModal from './FilterModal';
 
 // Define reminder types
 type ReminderStatus = 'upcoming' | 'sent' | 'failed';
@@ -234,6 +236,7 @@ const reminderData: Reminder[] = [
 const ReminderScreen = () => {
   const [activeTab, setActiveTab] = useState<ReminderStatus>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // Filter reminders based on active tab and search query
   const getFilteredReminders = useCallback(() => {
@@ -261,13 +264,21 @@ const ReminderScreen = () => {
     setSearchQuery('');
   };
 
+  const handleFilter = (filters: FilterState) => {
+    console.log('Applied filters:', filters);
+    // Apply your filter logic here
+  };
+
   return (
     <MainContainer>
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Reminders</Text>
-          <TouchableOpacity>
-            <Icon name="ellipsis-horizontal" size={24} color="#007AFF" />
+          <TouchableOpacity 
+            style={styles.filterButton}
+            onPress={() => setIsFilterVisible(true)}
+          >
+            <MaterialIcons name="tune" size={24} color="#007AFF" />
           </TouchableOpacity>
         </View>
 
@@ -378,6 +389,12 @@ const ReminderScreen = () => {
         <TouchableOpacity style={styles.addButton}>
           <Icon name="add" size={32} color="#FFFFFF" />
         </TouchableOpacity>
+
+        <FilterModal
+          visible={isFilterVisible}
+          onClose={() => setIsFilterVisible(false)}
+          onApplyFilter={handleFilter}
+        />
       </View>
     </MainContainer>
   );
@@ -553,6 +570,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#8E8E93',
     textAlign: 'center',
+  },
+  filterButton: {
+    padding: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
