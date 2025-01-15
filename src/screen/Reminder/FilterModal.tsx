@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,18 +8,20 @@ import {
   ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { Calendar } from 'react-native-calendars';
+import {Calendar} from 'react-native-calendars';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../constant/theme';
 
-const FilterModal = ({ visible, onClose }) => {
+const FilterModal = ({visible, onClose}) => {
   const [reminderType, setReminderType] = useState('one_time');
   const [dateFilter, setDateFilter] = useState('custom');
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-    >
+    <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           {/* Header */}
@@ -34,22 +36,24 @@ const FilterModal = ({ visible, onClose }) => {
             {/* Reminder Type Section */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Reminder Type</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.radioRow}
-                onPress={() => setReminderType('one_time')}
-              >
+                onPress={() => setReminderType('one_time')}>
                 <View style={styles.radioOuter}>
-                  {reminderType === 'one_time' && <View style={styles.radioInner} />}
+                  {reminderType === 'one_time' && (
+                    <View style={styles.radioInner} />
+                  )}
                 </View>
                 <Text style={styles.radioText}>One Time Reminder</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.radioRow, { marginTop: 8 }]}
-                onPress={() => setReminderType('recurring')}
-              >
+
+              <TouchableOpacity
+                style={[styles.radioRow, {marginTop: 8}]}
+                onPress={() => setReminderType('recurring')}>
                 <View style={styles.radioOuter}>
-                  {reminderType === 'recurring' && <View style={styles.radioInner} />}
+                  {reminderType === 'recurring' && (
+                    <View style={styles.radioInner} />
+                  )}
                 </View>
                 <Text style={styles.radioText}>Recurring Reminder</Text>
               </TouchableOpacity>
@@ -59,19 +63,28 @@ const FilterModal = ({ visible, onClose }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Date Filter</Text>
               <View style={styles.dateFilterGrid}>
-                {['Last Week', '15 Day', '1 Month', '6 Month', '12 Month', 'Custom'].map((filter) => (
+                {[
+                  'Last Week',
+                  '15 Day',
+                  '1 Month',
+                  '6 Month',
+                  '12 Month',
+                  'Custom',
+                ].map(filter => (
                   <TouchableOpacity
                     key={filter}
                     style={[
                       styles.filterChip,
-                      dateFilter === filter.toLowerCase() && styles.filterChipActive
+                      dateFilter === filter.toLowerCase() &&
+                        styles.filterChipActive,
                     ]}
-                    onPress={() => setDateFilter(filter.toLowerCase())}
-                  >
-                    <Text style={[
-                      styles.filterChipText,
-                      dateFilter === filter.toLowerCase() && styles.filterChipTextActive
-                    ]}>
+                    onPress={() => setDateFilter(filter.toLowerCase())}>
+                    <Text
+                      style={[
+                        styles.filterChipText,
+                        dateFilter === filter.toLowerCase() &&
+                          styles.filterChipTextActive,
+                      ]}>
                       {filter}
                     </Text>
                   </TouchableOpacity>
@@ -84,12 +97,16 @@ const FilterModal = ({ visible, onClose }) => {
               <View style={styles.dateRangeRow}>
                 <View style={styles.dateInput}>
                   <Text style={styles.dateLabel}>Start Date</Text>
-                  <Text style={styles.dateValue}>18 Feb 2025</Text>
+                  <View style={styles.dateContainer}>
+                    <Text style={styles.dateValue}>18 Feb 2025</Text>
+                  </View>
                 </View>
                 <Text style={styles.dateToText}>To</Text>
                 <View style={styles.dateInput}>
                   <Text style={styles.dateLabel}>End Date</Text>
-                  <Text style={styles.dateValue}>26 Feb 2025</Text>
+                  <View style={styles.dateContainer}>
+                    <Text style={styles.dateValue}>26 Feb 2025</Text>
+                  </View>
                 </View>
               </View>
 
@@ -129,98 +146,113 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: 'white',
-    marginHorizontal: 20,
+    marginHorizontal: responsiveWidth(5),
     borderRadius: 10,
-    maxHeight: '90%',
+    maxHeight: '85%',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    padding: responsiveWidth(4),
   },
   headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: fontSize.regular,
+    fontWeight: '700',
+    fontFamily: fontFamily.bold,
   },
   section: {
-    padding: 16,
+    padding: responsiveWidth(4),
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: color.lightgray,
   },
   sectionTitle: {
-    fontSize: 15,
+    fontSize: fontSize.regularx,
     fontWeight: '500',
-    marginBottom: 12,
+    marginBottom: responsiveWidth(3.2),
   },
   radioRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   radioOuter: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: responsiveWidth(5.3),
+    height: responsiveWidth(5.3),
+    borderRadius: responsiveWidth(3),
     borderWidth: 2,
-    borderColor: '#007AFF',
     alignItems: 'center',
+    borderColor: color.primary,
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: responsiveWidth(2),
   },
   radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#007AFF',
+    width: responsiveWidth(3.5),
+    height: responsiveWidth(3.5),
+    borderRadius: responsiveWidth(3),
+    backgroundColor: color.primary,
   },
   radioText: {
-    fontSize: 15,
+    fontSize: fontSize.mini,
+    color: color.black,
+    fontFamily: fontFamily.regular,
   },
   dateFilterGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: responsiveWidth(2),
   },
   filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 15,
+    paddingHorizontal: responsiveWidth(3),
+    paddingVertical: responsiveWidth(2),
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E5EA',
+    borderColor: color.transparentGray,
   },
   filterChipActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
+    backgroundColor: '#ECF5FF',
+    borderColor: color.primary,
   },
   filterChipText: {
-    fontSize: 13,
-    color: '#000',
+    fontSize: fontSize.minixxx,
+    color: color.lightGrayText,
+    fontFamily: fontFamily.semiBold,
+    fontWeight: '500',
   },
   filterChipTextActive: {
-    color: 'white',
+    color: color.primary,
   },
   dateRangeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: responsiveWidth(4),
   },
   dateInput: {
     flex: 1,
   },
   dateLabel: {
-    fontSize: 13,
-    color: '#8E8E93',
-    marginBottom: 4,
+    fontSize: fontSize.minixxx,
+    color: color.grayText,
+    marginBottom: responsiveWidth(1),
+    fontFamily: fontFamily.regular,
   },
   dateValue: {
-    fontSize: 15,
-    color: '#000',
+    fontSize: fontSize.regularx,
+    color: color.black,
+    fontFamily: fontFamily.regular,
   },
   dateToText: {
-    marginHorizontal: 12,
-    color: '#8E8E93',
+    fontSize: fontSize.regularx,
+    color: color.grayText,
+    fontFamily: fontFamily.regular,
+    textAlign: 'center',
+    flex: 0.3,
+    top: 10,
+  },
+  dateContainer: {
+    borderWidth: 1,
+    borderColor: color.grayText,
+    padding: responsiveWidth(3),
+    borderRadius: responsiveWidth(2),
   },
   calendar: {
     borderRadius: 8,
@@ -234,31 +266,33 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     flex: 1,
-    height: 44,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: color.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   clearButtonText: {
-    color: '#007AFF',
-    fontSize: 15,
+    color: color.primary,
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.semiBold,
     fontWeight: '600',
+    paddingVertical: responsiveWidth(2.5),
   },
   applyButton: {
     flex: 1,
-    height: 44,
     borderRadius: 8,
-    backgroundColor: '#007AFF',
+    backgroundColor: color.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
   applyButtonText: {
-    color: 'white',
-    fontSize: 15,
+    color: color.white,
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.semiBold,
     fontWeight: '600',
+    paddingVertical: responsiveWidth(2.5),
   },
 });
 
-export default FilterModal; 
+export default FilterModal;

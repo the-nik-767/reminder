@@ -1,59 +1,91 @@
 // HomeScreen.tsx
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  SafeAreaView,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { MainContainer } from '../../components';
+import {MainContainer} from '../../components';
+import {icons} from '../../assets';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../constant/theme';
+import Svg, {Line, Rect} from 'react-native-svg';
 
 const HomeScreen = () => {
+  const [upcomingReminder, setUpcomingreminder] = useState([
+    {id: 1},
+    {id: 2},
+    {id: 3},
+    {id: 4},
+    {id: 5},
+  ]);
+
+  const OptionContainer = ({title, value, onPress, source}: any) => {
+    return (
+      <TouchableOpacity style={styles.statsCard} onPress={onPress}>
+        <Image source={source} style={styles.optionIconStyle} />
+        <Text style={styles.statsNumber}>{value}</Text>
+        <Text style={styles.statsLabel}>{title}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <MainContainer>
       {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Icon name="notifications" size={24} color="#007AFF" style={styles.bellIcon} />
-          <Text style={styles.headerTitle}>Reminder</Text>
+      <SafeAreaView>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <Image source={icons.icReminderLogo} style={styles.logoStyle} />
+            <Text style={styles.headerTitle}>Reminder</Text>
+          </View>
+          <TouchableOpacity>
+            <Image source={icons.icNotification} style={styles.logoStyle} />
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity>
-          <Icon name="notifications-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+      </SafeAreaView>
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={styles.content} bounces={false}>
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
           <View style={styles.statsRow}>
-            <TouchableOpacity style={styles.statsCard}>
-              <Icon name="people" size={32} color="#007AFF" />
-              <Text style={styles.statsNumber}>3900+</Text>
-              <Text style={styles.statsLabel}>Total Customer</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.statsCard}>
-              <Icon name="time" size={32} color="#007AFF" />
-              <Text style={styles.statsNumber}>150</Text>
-              <Text style={styles.statsLabel}>Pending Reminder</Text>
-            </TouchableOpacity>
+            <OptionContainer
+              title={'Total Customer'}
+              value={'3000+'}
+              source={icons.icCustomers}
+              onPress={() => {}}
+            />
+            <OptionContainer
+              title={'Pending Reminder'}
+              value={'150'}
+              source={icons.icReminder}
+              onPress={() => {}}
+            />
           </View>
 
-          <View style={styles.statsRow}>
-            <TouchableOpacity style={styles.statsCard}>
-              <Icon name="notifications" size={32} color="#4CAF50" />
-              <Text style={styles.statsNumber}>300</Text>
-              <Text style={styles.statsLabel}>Delivered Reminders</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.statsCard}>
-              <Icon name="alert-circle" size={32} color="#FF3B30" />
-              <Text style={styles.statsNumber}>150</Text>
-              <Text style={styles.statsLabel}>Failed Reminders</Text>
-            </TouchableOpacity>
+          <View style={[styles.statsRow, {marginBottom: 0}]}>
+            <OptionContainer
+              title={'Delivered Reminders'}
+              value={'300'}
+              source={icons.icDeliverReminder}
+              onPress={() => {}}
+            />
+            <OptionContainer
+              title={'Failed Reminders'}
+              value={'150'}
+              source={icons.icFailedReminder}
+              onPress={() => {}}
+            />
           </View>
         </View>
 
@@ -64,7 +96,7 @@ const HomeScreen = () => {
             <Text style={styles.balanceAmount}>$5000.30</Text>
           </View>
           <TouchableOpacity style={styles.addMoneyButton}>
-            <Icon name="add" size={20} color="#007AFF" />
+            <Image source={icons.icPlus} style={styles.addIconStyle} />
             <Text style={styles.addMoneyText}>Add Money</Text>
           </TouchableOpacity>
         </View>
@@ -80,38 +112,42 @@ const HomeScreen = () => {
 
           {/* Reminder List */}
           <View style={styles.reminderList}>
-            <TouchableOpacity style={styles.reminderItem}>
-              <View style={styles.reminderInfo}>
-                <Icon name="calendar-outline" size={20} color="#007AFF" />
-                <View style={styles.reminderDetails}>
-                  <Text style={styles.reminderName}>Reminder Name ABC</Text>
-                  <Text style={styles.reminderMeta}>10 Members • Send On 10 Dec 2024 - 9:00 AM</Text>
+            {upcomingReminder?.map((i, index) => {
+              return (
+                <View key={index.toString()} style={styles.mainContainer}>
+                  <TouchableOpacity
+                    style={{paddingVertical: responsiveWidth(4)}}>
+                    <View style={styles.reminderItem}>
+                      <View style={styles.reminderInfo}>
+                        <Image
+                          source={icons.icCalendarReminder}
+                          style={styles.calendarIconStyle}
+                        />
+                        <View style={styles.reminderDetails}>
+                          <Text style={styles.reminderName}>
+                            Reminder Name ABC
+                          </Text>
+                        </View>
+                      </View>
+                      <Icon
+                        name="chevron-forward"
+                        size={20}
+                        color={color.grayText}
+                      />
+                    </View>
+                    <Text style={styles.reminderMeta}>
+                      10 Members • Send On
+                      <Text style={{color: color.black}}>
+                        {` 10 Dec 2024 - 9:00 AM`}
+                      </Text>
+                    </Text>
+                  </TouchableOpacity>
+                  {index != upcomingReminder?.length - 1 && (
+                    <View style={styles.borderContainer} />
+                  )}
                 </View>
-              </View>
-              <Icon name="chevron-forward" size={20} color="#8E8E93" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.reminderItem}>
-              <View style={styles.reminderInfo}>
-                <Icon name="calendar-outline" size={20} color="#007AFF" />
-                <View style={styles.reminderDetails}>
-                  <Text style={styles.reminderName}>ABC Reminder Name</Text>
-                  <Text style={styles.reminderMeta}>5 Members • Send On 12 Dec 2024 - 12:00 PM</Text>
-                </View>
-              </View>
-              <Icon name="chevron-forward" size={20} color="#8E8E93" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.reminderItem}>
-              <View style={styles.reminderInfo}>
-                <Icon name="calendar-outline" size={20} color="#007AFF" />
-                <View style={styles.reminderDetails}>
-                  <Text style={styles.reminderName}>Reminder Name XYZ</Text>
-                  <Text style={styles.reminderMeta}>3 Members • Send On 15 Dec 2024 - 9:00 AM</Text>
-                </View>
-              </View>
-              <Icon name="chevron-forward" size={20} color="#8E8E93" />
-            </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
       </ScrollView>
@@ -138,19 +174,22 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: fontSize.large,
     fontWeight: '600',
+    fontFamily: fontFamily.bold,
+    marginHorizontal: responsiveWidth(2),
   },
   content: {
     flex: 1,
   },
   statsGrid: {
-    padding: 16,
+    padding: responsiveWidth(4),
+    paddingTop: 0,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: responsiveWidth(4),
   },
   statsCard: {
     backgroundColor: '#FFFFFF',
@@ -168,18 +207,21 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   statsNumber: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginVertical: 4,
+    fontSize: fontSize.regular,
+    fontFamily: fontFamily.extraBold,
+    fontWeight: 'bold',
+    color: color.primary,
+    marginTop: responsiveWidth(1.5),
   },
   statsLabel: {
-    fontSize: 14,
+    fontSize: fontSize.mini,
+    fontFamily: fontFamily.regular,
     color: '#8E8E93',
     textAlign: 'center',
   },
   balanceCard: {
-    backgroundColor: '#4CAF50',
-    margin: 16,
+    backgroundColor: color.primaryGreen,
+    marginHorizontal: responsiveWidth(4),
     padding: 16,
     borderRadius: 12,
     flexDirection: 'row',
@@ -191,12 +233,14 @@ const styles = StyleSheet.create({
   },
   balanceLabel: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: fontSize.xsmall,
+    fontFamily: fontFamily.regular,
   },
   balanceAmount: {
     color: '#FFFFFF',
-    fontSize: 24,
-    fontWeight: '600',
+    fontSize: fontSize.regular,
+    fontFamily: fontFamily.bold,
+    fontWeight: 'bold',
     marginTop: 4,
   },
   addMoneyButton: {
@@ -208,45 +252,59 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   addMoneyText: {
-    color: '#007AFF',
+    color: color.primary,
     marginLeft: 4,
-    fontWeight: '500',
+    fontWeight: 'bold',
+    fontSize: fontSize.xsmall,
+    fontFamily: fontFamily.bold,
   },
   remindersSection: {
-    padding: 16,
+    margin: responsiveWidth(4),
+    backgroundColor: color.white,
+    borderRadius: responsiveWidth(4),
+    overflow: 'hidden',
   },
   reminderHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginTop: responsiveWidth(4),
+    paddingHorizontal: responsiveWidth(4),
   },
   reminderTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: fontSize.small,
+    fontWeight: 'bold',
+    fontFamily: fontFamily.bold,
   },
   viewAllText: {
-    color: '#007AFF',
-    fontSize: 14,
+    color: color.primary,
+    fontSize: fontSize.regular,
+    fontFamily: fontFamily.regular,
+    textDecorationLine: 'underline',
   },
   reminderList: {
-    gap: 12,
+    // gap: 12,
+  },
+  mainContainer: {
+    overflow: 'hidden',
+    paddingHorizontal: responsiveWidth(4),
+    marginBottom: 5,
+  },
+  borderContainer: {
+    borderWidth: 0.8,
+    borderColor: color.border,
+    borderStyle: 'dashed',
+  },
+  calendarIconStyle: {
+    height: responsiveWidth(5),
+    width: responsiveWidth(5),
+    resizeMode: 'contain',
   },
   reminderItem: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
+    // backgroundColor: 'red',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
   },
   reminderInfo: {
     flexDirection: 'row',
@@ -254,17 +312,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   reminderDetails: {
-    marginLeft: 12,
+    marginLeft: responsiveWidth(1),
     flex: 1,
   },
   reminderName: {
-    fontSize: 16,
+    fontSize: fontSize.regular,
     fontWeight: '500',
-    marginBottom: 4,
+    fontFamily: fontFamily.semiBold,
+    color: color.black,
   },
   reminderMeta: {
-    fontSize: 12,
-    color: '#8E8E93',
+    fontSize: fontSize.minix,
+    color: color.grayText,
+    marginTop: responsiveWidth(1),
+  },
+  logoStyle: {
+    height: responsiveWidth(8),
+    width: responsiveWidth(8),
+    resizeMode: 'contain',
+  },
+  optionIconStyle: {
+    height: responsiveWidth(10),
+    width: responsiveWidth(10),
+    resizeMode: 'contain',
+  },
+  addIconStyle: {
+    height: responsiveWidth(5),
+    width: responsiveWidth(5),
+    resizeMode: 'contain',
   },
 });
 

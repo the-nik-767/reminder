@@ -1,7 +1,10 @@
-import { Platform, Dimensions, PixelRatio, StatusBar } from 'react-native';
+import {Platform, Dimensions, PixelRatio, StatusBar} from 'react-native';
 
-import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from 'react-native-responsive-screen';
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 import themeHelper from '../helper/theme';
 
 const orientation = 'PORTRAIT';
@@ -10,24 +13,25 @@ const orientation = 'PORTRAIT';
 const guidelineBaseWidth = 350;
 // const guidelineBaseHeight = 680;
 
-const mainScale = (size) => (SCREEN_WIDTH / guidelineBaseWidth) * size;
+const mainScale = size => (SCREEN_WIDTH / guidelineBaseWidth) * size;
 // const verticalScale = (size) => (SCREEN_HEIGHT / guidelineBaseHeight) * size;
-const moderateScale = (size, factor = 0.5) => size + (mainScale(size) - size) * factor;
+const moderateScale = (size, factor = 0.5) =>
+  size + (mainScale(size) - size) * factor;
 
 // const IS_IPAD = SCREEN_HEIGHT / SCREEN_WIDTH < 1.6;
 const scale = SCREEN_WIDTH / 320;
 
 function normalize(size) {
-	const newSize = size * scale;
-	if (Platform.OS === 'ios') {
-		return !themeHelper.isPotrait(orientation)
-			? Math.round(PixelRatio.roundToNearestPixel(newSize)) / 2
-			: Math.round(PixelRatio.roundToNearestPixel(newSize));
-	} else {
-		return !themeHelper.isPotrait(orientation)
-			? Math.round(PixelRatio.roundToNearestPixel(newSize)) / 2
-			: Math.round(PixelRatio.roundToNearestPixel(newSize));
-	}
+  const newSize = size * scale;
+  if (Platform.OS === 'ios') {
+    return !themeHelper.isPotrait(orientation)
+      ? Math.round(PixelRatio.roundToNearestPixel(newSize)) / 2
+      : Math.round(PixelRatio.roundToNearestPixel(newSize));
+  } else {
+    return !themeHelper.isPotrait(orientation)
+      ? Math.round(PixelRatio.roundToNearestPixel(newSize)) / 2
+      : Math.round(PixelRatio.roundToNearestPixel(newSize));
+  }
 }
 
 export const color = {
@@ -54,7 +58,10 @@ export const color = {
   darkgreen: '#004349',
   border: '#D5D8D5',
   primary: '#0047AF',
-  
+  primaryGreen: '#27AE60',
+  primaryBackground: '#ECF5FF',
+  grayText: '#8E8E93',
+  lightGrayText: '#8C8C8C',
 };
 
 export const fontSize = {
@@ -85,37 +92,41 @@ export const fontSize = {
 };
 
 export const fontStyle = {
-	italic: 'italic',
-	normal: 'normal'
+  italic: 'italic',
+  normal: 'normal',
 };
 
 export const fontFamily = {
-	semiBold: 'Cairo-SemiBold',
-	medium: 'Cairo-Medium',
-	extraBold: 'Cairo-ExtraBold',
-	bold: 'Cairo-Bold',
-	light: 'Cairo-Light',
-	regular: 'Cairo-Regular'
+  semiBold: 'Inter-SemiBold',
+  medium: 'Inter-Medium',
+  extraBold: 'Inter-ExtraBold',
+  bold: 'Inter-Bold',
+  light: 'Inter-Light',
+  regular: 'Inter-Regular',
 };
 
 export const screen = {
-	screen: Dimensions.get('window'),
-	screenHeight: SCREEN_HEIGHT,
-	screenWidth: SCREEN_WIDTH,
-	fullScreenWidth: SCREEN_WIDTH,
-	fullScreenHeight: SCREEN_HEIGHT,
-	statusBarHeight: StatusBar.currentHeight,
-	maxUIWidth: 500,
-	wp,
-	hp,
-	moderateScale,
-	orientation
+  screen: Dimensions.get('window'),
+  screenHeight: SCREEN_HEIGHT,
+  screenWidth: SCREEN_WIDTH,
+  fullScreenWidth: SCREEN_WIDTH,
+  fullScreenHeight: SCREEN_HEIGHT,
+  statusBarHeight: StatusBar.currentHeight,
+  maxUIWidth: 500,
+  wp,
+  hp,
+  moderateScale,
+  orientation,
 };
 
-export const responsiveWidth = (percentage) => {
-	return themeHelper.isPotrait(orientation) ? wp(percentage) : wp(percentage) / 2;
+export const responsiveWidth = percentage => {
+  return themeHelper.isPotrait(orientation)
+    ? wp(percentage)
+    : wp(percentage) / 2;
 };
 
-export const responsiveHeight = (percentage) => {
-	return themeHelper.isPotrait(orientation) ? hp(percentage) : hp(percentage) * 2;
+export const responsiveHeight = percentage => {
+  return themeHelper.isPotrait(orientation)
+    ? hp(percentage)
+    : hp(percentage) * 2;
 };

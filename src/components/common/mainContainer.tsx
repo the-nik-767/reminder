@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   subContainer: {
     flex: 1,
-    backgroundColor: color.white,
+    backgroundColor: color.primaryBackground,
     marginBottom: responsiveWidth(2),
     borderBottomLeftRadius: responsiveWidth(4),
     borderBottomRightRadius: responsiveWidth(4),

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -6,11 +6,21 @@ import {
   TouchableOpacity,
   TextInput,
   FlatList,
+  Image,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { MainContainer } from '../../components';
+import {MainContainer} from '../../components';
 import FilterModal from './FilterModal';
+import {Header} from '../../components/common/header';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../constant/theme';
+import Searchbox from '../../components/common/searchbox';
+import {icons} from '../../assets';
 
 // Define reminder types
 type ReminderStatus = 'upcoming' | 'sent' | 'failed';
@@ -230,7 +240,7 @@ const reminderData: Reminder[] = [
     date: '28 Dec 2024 - 09:00 AM',
     type: 'One Time',
     status: 'upcoming',
-  }
+  },
 ];
 
 const ReminderScreen = () => {
@@ -240,14 +250,17 @@ const ReminderScreen = () => {
 
   // Filter reminders based on active tab and search query
   const getFilteredReminders = useCallback(() => {
-    let filtered = reminderData.filter(reminder => reminder.status === activeTab);
+    let filtered = reminderData.filter(
+      reminder => reminder.status === activeTab,
+    );
 
     if (searchQuery.trim()) {
       const searchTerm = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(reminder => 
-        reminder.customerName.toLowerCase().includes(searchTerm) ||
-        reminder.title.toLowerCase().includes(searchTerm) ||
-        reminder.date.toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        reminder =>
+          reminder.customerName.toLowerCase().includes(searchTerm) ||
+          reminder.title.toLowerCase().includes(searchTerm) ||
+          reminder.date.toLowerCase().includes(searchTerm),
       );
     }
 
@@ -269,133 +282,146 @@ const ReminderScreen = () => {
     // Apply your filter logic here
   };
 
+  const getReminderIconByType = () => {
+    return activeTab === 'upcoming'
+      ? icons.icCalendarReminder
+      : activeTab === 'sent'
+      ? icons.icReminderSuccess
+      : icons.icReminderFail;
+  };
+  const getReminderListTitleByType = () => {
+    return activeTab === 'upcoming'
+      ? 'Upcoming Reminders'
+      : activeTab === 'sent'
+      ? 'Recently Sent Reminders'
+      : 'Failed Reminders';
+  };
+
   return (
     <MainContainer>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Reminders</Text>
-          <TouchableOpacity 
-            style={styles.filterButton}
-            onPress={() => setIsFilterVisible(true)}
-          >
-            <MaterialIcons name="tune" size={24} color="#007AFF" />
-          </TouchableOpacity>
-        </View>
+      <Header
+        title="Reminders"
+        rightIcon={icons.icFilter}
+        onPress={() => setIsFilterVisible(true)}
+      />
 
-        <View style={styles.tabContainer}>
-          {[
-            { id: 'upcoming', label: 'Upcoming' },
-            { id: 'sent', label: 'Recently Sent' },
-            { id: 'failed', label: 'Failed' }
-          ].map((tab) => (
-            <TouchableOpacity 
-              key={tab.id}
-              style={[styles.tab, activeTab === tab.id && styles.activeTab]}
-              onPress={() => setActiveTab(tab.id as ReminderStatus)}
-            >
-              <Text style={[
-                styles.tabText, 
-                activeTab === tab.id && styles.activeTabText
+      <View style={styles.tabContainer}>
+        {[
+          {id: 'upcoming', label: 'Upcoming'},
+          {id: 'sent', label: 'Recently Sent'},
+          {id: 'failed', label: 'Failed'},
+        ].map(tab => (
+          <TouchableOpacity
+            key={tab.id}
+            style={[styles.tab, activeTab === tab.id && styles.activeTab]}
+            onPress={() => setActiveTab(tab.id as ReminderStatus)}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === tab.id && styles.activeTabText,
               ]}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <View style={styles.searchContainer}>
-          <Icon name="search" size={18} color="#8E8E93" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Customers"
-            placeholderTextColor="#8E8E93"
-            value={searchQuery}
-            onChangeText={handleSearch}
-            returnKeyType="search"
-            clearButtonMode="while-editing"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={clearSearch}>
-              <Icon name="close-circle" size={18} color="#8E8E93" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Show "No results found" when search has no matches */}
-        {getFilteredReminders().length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              No reminders found for "{searchQuery}"
+              {tab.label}
             </Text>
-          </View>
-        ) : (
-          <>
-            <Text style={styles.sectionTitle}>
-              {activeTab === 'upcoming' ? 'Upcoming Reminders' : 
-               activeTab === 'sent' ? 'Recently Sent Reminders' : 
-               'Failed Reminders'}
-            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-            <FlatList
-              data={getFilteredReminders()}
-              renderItem={({ item }) => (
-                <View style={styles.reminderItem}>
-                  <View style={styles.reminderTitleRow}>
-                    <View style={styles.titleContainer}>
-                      <Icon name="document-text-outline" size={18} color="#007AFF" />
-                      <Text style={styles.reminderTitle}>{item.title}</Text>
-                    </View>
+      <Searchbox
+        searchContainerStyle={{marginTop: responsiveWidth(3)}}
+        value={searchQuery}
+        onChangeText={handleSearch}
+      />
+
+      {/* Show "No results found" when search has no matches */}
+      {getFilteredReminders().length == 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            No reminders found for "{searchQuery}"
+          </Text>
+        </View>
+      ) : (
+        <View style={styles.reminderListContainer}>
+          <Text style={styles.sectionTitle}>
+            {getReminderListTitleByType()}
+          </Text>
+
+          <FlatList
+            data={getFilteredReminders()}
+            renderItem={({item}) => (
+              <View style={styles.reminderItem}>
+                <View style={styles.reminderTitleRow}>
+                  <View style={styles.titleContainer}>
+                    <Image
+                      source={getReminderIconByType()}
+                      style={styles.actionIconStyle}
+                    />
+                    <Text style={styles.reminderTitle}>{item.title}</Text>
+                  </View>
+                  {activeTab != 'sent' && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity>
-                        <Icon name="trash-outline" size={18} color="#FF3B30" />
+                        <Image
+                          source={icons.icTrash}
+                          style={styles.actionIconStyle}
+                        />
                       </TouchableOpacity>
                       <TouchableOpacity>
-                        <Icon name="create-outline" size={18} color="#007AFF" />
+                        <Image
+                          source={icons.icEdit}
+                          style={styles.actionIconStyle}
+                        />
                       </TouchableOpacity>
                     </View>
-                  </View>
+                  )}
+                </View>
 
-                  <View style={styles.customerRow}>
-                    <Icon name="person-outline" size={14} color="#8E8E93" />
-                    <Text style={styles.customerName}>{item.customerName}</Text>
-                  </View>
+                <View style={styles.customerRow}>
+                  <Image
+                    source={icons.icProfile}
+                    style={styles.smallIconStyle}
+                  />
+                  <Text style={styles.customerName}>{item.customerName}</Text>
+                </View>
 
-                  <View style={styles.dateRow}>
-                    <Text style={styles.dateLabel}>Send On</Text>
-                    <Text style={styles.dateText}>{item.date}</Text>
-                    <View style={styles.typeContainer}>
-                      <Icon 
-                        name={item.type === 'Recurring' ? 'repeat' : 'time-outline'} 
-                        size={14} 
-                        color="#8E8E93" 
-                      />
-                      <Text style={styles.typeText}>{item.type}</Text>
-                    </View>
+                <View style={styles.dateRow}>
+                  <Text style={styles.dateLabel}>
+                    {`Send On `}
+                    <Text style={styles.dateText}>{`${item.date}`}</Text>
+                    {` - `}
+                  </Text>
+                  <View style={styles.typeContainer}>
+                    <Image
+                      source={
+                        item.type === 'Recurring'
+                          ? icons.icRecurring
+                          : icons.icOneTime
+                      }
+                      style={styles.actionTypeIconStyle}
+                    />
+                    <Text style={styles.typeText}>{` ${item.type}`}</Text>
                   </View>
                 </View>
-              )}
-              keyExtractor={item => item.id}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-              contentContainerStyle={styles.reminderList}
-              showsVerticalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="on-drag"
-            />
-          </>
-        )}
+              </View>
+            )}
+            keyExtractor={item => item.id}
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            contentContainerStyle={styles.reminderList}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+          />
+        </View>
+      )}
 
-        <TouchableOpacity style={styles.addButton}>
-          <Icon name="add" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.addButton}>
+        <Icon name="add" size={32} color="#FFFFFF" />
+      </TouchableOpacity>
 
-        <FilterModal
-          visible={isFilterVisible}
-          onClose={() => setIsFilterVisible(false)}
-          onApplyFilter={handleFilter}
-        />
-      </View>
+      <FilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onApplyFilter={handleFilter}
+      />
     </MainContainer>
   );
 };
@@ -420,66 +446,49 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: responsiveWidth(4),
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E5EA',
+    borderBottomColor: color.lightgray,
   },
   tab: {
-    marginRight: 24,
-    paddingVertical: 8,
-    paddingBottom: 12,
+    paddingHorizontal: responsiveWidth(2),
+    paddingVertical: responsiveWidth(2),
+    paddingBottom: responsiveWidth(4),
+    flex: 1,
+    alignItems: 'center',
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: '#007AFF',
+    borderBottomColor: color.primary,
     marginBottom: -1,
   },
   tabText: {
-    fontSize: 15,
-    color: '#8E8E93',
-    fontWeight: '400',
+    fontSize: fontSize.regularx,
+    color: color.grayText,
+    fontWeight: '600',
+    fontFamily: fontFamily.semiBold,
   },
   activeTabText: {
-    color: '#007AFF',
+    color: color.primary,
     fontWeight: '600',
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 16,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    height: 36,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    marginLeft: 8,
-    marginRight: 8,
-    height: '100%',
-    padding: 0,
-    color: '#000000',
+    fontFamily: fontFamily.semiBold,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: fontSize.regular,
     fontWeight: '600',
-    marginHorizontal: 16,
-    marginBottom: 8,
-    color: '#000000',
+    marginBottom: responsiveWidth(1),
+    color: color.black,
   },
-  reminderList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    marginHorizontal: 16,
-    paddingTop: 4,
-    paddingBottom: 80, // for floating button
+  reminderListContainer: {
+    backgroundColor: color.white,
+    marginHorizontal: responsiveWidth(4),
+    borderRadius: responsiveWidth(4),
+    overflow: 'hidden',
+    padding: responsiveWidth(4),
   },
+  reminderList: {},
   reminderItem: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: responsiveWidth(3.5),
   },
   reminderTitleRow: {
     flexDirection: 'row',
@@ -490,16 +499,17 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
   reminderTitle: {
-    fontSize: 15,
+    fontSize: fontSize.regularx,
     fontWeight: '400',
-    color: '#000000',
+    color: color.black,
+    fontFamily: fontFamily.semiBold,
+    marginHorizontal: responsiveWidth(1),
   },
   actionButtons: {
     flexDirection: 'row',
-    gap: 20,
+    gap: responsiveWidth(3),
   },
   customerRow: {
     flexDirection: 'row',
@@ -508,27 +518,28 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   customerName: {
-    fontSize: 13,
-    color: '#8E8E93',
+    fontSize: fontSize.minix,
+    color: color.grayText,
+    fontFamily: fontFamily.regular,
   },
   dateRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   dateLabel: {
-    fontSize: 13,
-    color: '#8E8E93',
-    marginRight: 4,
+    fontSize: fontSize.minix,
+    color: color.grayText,
+    // marginRight: 4,
   },
   dateText: {
-    fontSize: 13,
-    color: '#000000',
-    flex: 1,
+    fontSize: fontSize.minix,
+    color: color.black,
+    // flex: 1,
   },
   typeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    // gap: 4,
   },
   typeText: {
     fontSize: 13,
@@ -545,7 +556,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
+    backgroundColor: color.primary,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -567,14 +578,29 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
   },
   emptyText: {
-    fontSize: 15,
-    color: '#8E8E93',
+    fontSize: fontSize.regular,
+    color: color.grayText,
     textAlign: 'center',
   },
   filterButton: {
     padding: 4,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  actionIconStyle: {
+    height: responsiveWidth(5),
+    width: responsiveWidth(5),
+    resizeMode: 'contain',
+  },
+  smallIconStyle: {
+    height: responsiveWidth(4.5),
+    width: responsiveWidth(4.5),
+    resizeMode: 'contain',
+  },
+  actionTypeIconStyle: {
+    height: responsiveWidth(4),
+    width: responsiveWidth(4),
+    resizeMode: 'contain',
   },
 });
 
