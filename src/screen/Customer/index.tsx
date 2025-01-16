@@ -18,6 +18,7 @@ import {
   responsiveWidth,
 } from '../../constant/theme';
 import {icons} from '../../assets';
+import {useNavigation} from '@react-navigation/native';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -65,6 +66,7 @@ const customerData = [
 ];
 
 const CustomerScreen = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLetter, setSelectedLetter] = useState('');
 
@@ -95,7 +97,9 @@ const CustomerScreen = () => {
   };
 
   const renderCustomerItem = ({item}) => (
-    <TouchableOpacity style={styles.customerItem}>
+    <TouchableOpacity
+      style={styles.customerItem}
+      onPress={() => navigation.navigate('CustomerDetails')}>
       <View style={styles.customerInfo}>
         <View
           style={[styles.avatar, {backgroundColor: getAvatarColor(item.name)}]}>
@@ -180,7 +184,11 @@ const CustomerScreen = () => {
 
       {/* Add Button */}
       <View style={styles.addButtonContainer}>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            navigation.navigate('AddNewCustomer');
+          }}>
           <Icon name="add" size={32} color="#FFFFFF" />
         </TouchableOpacity>
       </View>

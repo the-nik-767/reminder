@@ -118,6 +118,7 @@ export const icons = {
   icRecurring: require('./icons/icRecurring.png'),
   icFilter: require('./icons/icFilter.png'),
   icTrash: require('./icons/icTrash.png'),
+  icBack: require('./icons/icBack.png'),
 };
 
 export const vid = {

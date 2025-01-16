@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,13 @@ import {
   SafeAreaView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
-import { color, responsiveHeight, responsiveWidth } from '../../constant/theme';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../../constant/theme';
 import Edit from '../../assets/svgs/edit.svg';
 import Profile from '../../assets/svgs/profileIc.svg';
 import Phone from '../../assets/svgs/phone.svg';
@@ -16,47 +22,57 @@ import Email from '../../assets/svgs/email.svg';
 import Date from '../../assets/svgs/Date.svg';
 import Business from '../../assets/svgs/business.svg';
 import Celender from '../../assets/svgs/celender.svg';
+import {Header} from '../../components';
 
 const reminderData = [
   {
     id: '1',
     title: 'Reminder Name ABC',
-    datetime: '10 Dec 2024 - 9:00 AM'
+    datetime: '10 Dec 2024 - 9:00 AM',
   },
   {
     id: '2',
     title: 'Reminder Name XYZ',
-    datetime: '15 Dec 2024 - 2:30 PM'
+    datetime: '15 Dec 2024 - 2:30 PM',
   },
   {
     id: '3',
     title: 'Reminder Name PQR',
-    datetime: '20 Dec 2024 - 11:00 AM'
-  }
+    datetime: '20 Dec 2024 - 11:00 AM',
+  },
 ];
 
-const CustomerDetails = ({ navigation }) => {
-  
-  
+const CustomerDetails = ({navigation}) => {
+  const [selectedType, setSelectedType] = useState('upcoming');
+
+  const TabButton = ({isSelected, title, onPress}: any) => {
+    return (
+      <TouchableOpacity
+        style={[styles.tabButton, !isSelected && styles.middleTab]}
+        onPress={onPress}>
+        <Text
+          style={[
+            styles.tabButtonText,
+            {
+              color: isSelected ? color.black : color.grayText,
+            },
+          ]}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
-          <Icon name="chevron-left" size={24} color="#0047AF" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Add New Customer</Text>
-      </View>
+    <View style={styles.container}>
+      <Header title="Customer Details" showBack />
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.infoCard}>
           {/* Profile Icon and Info */}
           <View style={styles.profileSection}>
             {/* <Icon name="user" size={24} color={colors.grey} /> */}
-            <Text style={styles.profileText}>Profile Information</Text>
+            <Text style={styles.profileText}>{'Personal Details'}</Text>
             <Edit />
           </View>
 
@@ -119,15 +135,29 @@ const CustomerDetails = ({ navigation }) => {
 
           <View style={styles.bottomSectionMainContainer}>
             <View style={styles.bottomSection2}>
-              <TouchableOpacity style={styles.tabButton}>
-                <Text style={styles.tabButtonText}>Upcoming </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.tabButton, styles.middleTab]}>
-                <Text style={styles.tabButtonText}>Recently sent</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.tabButton}>
-                <Text style={styles.tabButtonText}>Failed </Text>
-              </TouchableOpacity>
+              <TabButton
+                isSelected={selectedType == 'upcoming'}
+                title={'Upcoming'}
+                onPress={() => {
+                  setSelectedType('upcoming');
+                }}
+              />
+              <View style={{width: 1, backgroundColor: color.border}} />
+              <TabButton
+                isSelected={selectedType == 'sent'}
+                title={'Recently sent'}
+                onPress={() => {
+                  setSelectedType('sent');
+                }}
+              />
+              <View style={{width: 1, backgroundColor: color.border}} />
+              <TabButton
+                isSelected={selectedType == 'fail'}
+                title={'Failed'}
+                onPress={() => {
+                  setSelectedType('fail');
+                }}
+              />
             </View>
 
             <View style={styles.bottomSection3}>
@@ -135,13 +165,22 @@ const CustomerDetails = ({ navigation }) => {
                 <View key={reminder.id} style={styles.bottomSectionMain}>
                   <View style={styles.profileSection3}>
                     <View style={styles.profileSection4}>
-                      <Celender width={24} height={24} />
+                      <Celender
+                        width={responsiveWidth(5)}
+                        height={responsiveWidth(5)}
+                      />
                       <Text style={styles.profileTextTitle2}>
                         {reminder.title}
                       </Text>
                     </View>
                     <View style={styles.profileSection5}>
-                      <Text style={[styles.profileTextDetails2,{color: color.gray}]}>Send on </Text>
+                      <Text
+                        style={[
+                          styles.profileTextDetails2,
+                          {color: color.gray},
+                        ]}>
+                        Send on{' '}
+                      </Text>
                       <Text style={styles.profileTextDetails2}>
                         {reminder.datetime}
                       </Text>
@@ -154,7 +193,7 @@ const CustomerDetails = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -195,14 +234,12 @@ const styles = StyleSheet.create({
     color: color.gray,
   },
   profileTextTitle2: {
-    fontFamily: 'Inter',
-    fontSize: 14,
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.regularx,
     fontWeight: '500',
-    lineHeight: 16.94,
-    letterSpacing: -0.02 * 14,
     textAlign: 'left',
-
     color: color.black,
+    marginHorizontal: responsiveWidth(1),
   },
   profileTextDetails: {
     fontFamily: 'Inter',
@@ -262,17 +299,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   profileText: {
-    fontFamily: 'Inter',
-    fontSize: 16,
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.regular,
     fontWeight: '600',
-    lineHeight: 19.36,
-    letterSpacing: -0.32,
     textAlign: 'left',
     marginLeft: responsiveWidth(3),
     color: color.black,
   },
   detailsContainer: {
-    marginTop: responsiveHeight(2),
+    // marginTop: responsiveHeight(2),
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -308,22 +343,22 @@ const styles = StyleSheet.create({
   bottomContainer: {
     backgroundColor: color.white,
     margin: responsiveWidth(5),
+    marginTop: 0,
     borderRadius: 10,
     padding: responsiveWidth(4),
   },
   bottomText: {
-    fontFamily: 'Inter',
-    fontSize: 16,
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.regular,
     fontWeight: '600',
-    lineHeight: 19.36,
-    letterSpacing: -0.32,
     textAlign: 'left',
     marginLeft: responsiveWidth(3),
     color: color.black,
   },
   bottomTextBtn: {
     color: color.white,
-    fontSize: 16,
+    fontFamily: fontFamily.regular,
+    fontSize: fontSize.regular,
     fontWeight: '500',
   },
   bottomSection: {
@@ -334,6 +369,8 @@ const styles = StyleSheet.create({
   bottomSection2: {
     flex: 1,
     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: color.border,
   },
   bottomSection3: {
     flex: 1,
@@ -349,7 +386,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: responsiveHeight(2),
     borderWidth: 1,
-    borderColor: '#D5D8D5',
+    borderColor: color.border,
     borderRadius: 5,
   },
   tabButton: {
@@ -359,15 +396,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   middleTab: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderColor: '#D5D8D5',
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
+    borderColor: color.border,
     backgroundColor: '#fff',
   },
   tabButtonText: {
-    fontSize: 14,
-    fontFamily: 'Inter',
-    color: '#8C8C8C',
+    fontSize: fontSize.minix,
+    fontFamily: fontFamily.regular,
+    color: color.grayText,
     fontWeight: '500',
   },
   plusIconContainer: {
@@ -386,7 +423,7 @@ const styles = StyleSheet.create({
     // flexDirection: 'row',
     marginTop: responsiveHeight(2),
     borderWidth: 1,
-    borderColor: '#D5D8D5',
+    borderColor: color.border,
     borderRadius: 5,
     // padding: responsiveWidth(2),
   },
@@ -396,4 +433,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomerDetails;                
+export default CustomerDetails;

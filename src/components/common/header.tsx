@@ -28,11 +28,19 @@ const Header: React.FC<ButtonProps> = ({
   rightIconContainerStyle,
   rightIconStyle,
   onPress,
+  showBack,
 }: any) => {
   const navigation = useNavigation();
   return (
     <SafeAreaView>
       <View style={styles.header}>
+        {showBack ? (
+          <TouchableOpacity
+            style={[styles.iconContainer, {marginRight: responsiveWidth(2)}]}
+            onPress={() => navigation.goBack()}>
+            <Image source={icons.icBack} style={[styles.iconStyle]} />
+          </TouchableOpacity>
+        ) : null}
         <Text style={styles.headerTitle}>{title}</Text>
         {rightIcon ? (
           <TouchableOpacity
@@ -54,16 +62,17 @@ export {Header};
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: responsiveWidth(4),
     paddingTop: responsiveWidth(2),
     paddingBottom: responsiveWidth(4),
   },
   headerTitle: {
-    fontSize: fontSize.large,
+    fontSize: fontSize.mediumx,
     fontWeight: '700',
     color: color.black,
+    flex: 1,
   },
   iconStyle: {
     height: responsiveWidth(8),

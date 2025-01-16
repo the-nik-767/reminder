@@ -11,11 +11,17 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { color, responsiveWidth } from '../../constant/theme';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../constant/theme';
+import {Header} from '../../components';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const AddNewCustomer = ({ navigation }) => {
+const AddNewCustomer = ({navigation}) => {
   const [date, setDate] = React.useState(new Date());
   const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [dateOfBirth, setDateOfBirth] = React.useState('');
@@ -31,18 +37,9 @@ const AddNewCustomer = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <Header showBack title="Add New Customer" />
       <ScrollView>
-        {/* Header with back button */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}>
-            <Icon name="chevron-left" size={24} color="#0047AF" />
-          </TouchableOpacity>
-          <Text style={styles.headerText}>Add New Customer</Text>
-        </View>
-
         {/* Main Form Container */}
         <View style={styles.formContainer}>
           {/* Input Fields */}
@@ -88,11 +85,13 @@ const AddNewCustomer = ({ navigation }) => {
       </ScrollView>
 
       {/* Bottom Button */}
-      <TouchableOpacity style={styles.bottomButton} onPress={() => navigation.navigate('CustomerDetails')}>
+      <TouchableOpacity
+        style={styles.bottomButton}
+        onPress={() => navigation.navigate('CustomerDetails')}>
         <Text style={styles.buttonText}>Save</Text>
       </TouchableOpacity>
 
-      {showDatePicker && (
+      {/* {showDatePicker && (
         <DateTimePicker
           value={date}
           mode="date"
@@ -100,8 +99,8 @@ const AddNewCustomer = ({ navigation }) => {
           onChange={onDateChange}
           maximumDate={new Date()}
         />
-      )}
-    </SafeAreaView>
+      )} */}
+    </View>
   );
 };
 
@@ -110,61 +109,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ECF5FF',
   },
-  header: {
-    height: 50,
-    // justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: color.black,
-
-    marginLeft: responsiveWidth(5),
-  },
-  backButton: {
-    width: 25,
-    height: 25,
-    borderRadius: 20,
-    backgroundColor: color.white,
-    marginLeft: responsiveWidth(5),
-    // justifyContent: 'center',
-  },
   formContainer: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    backgroundColor: 'white',
+    marginHorizontal: responsiveWidth(4),
+    backgroundColor: color.white,
     borderRadius: 10,
-    padding: 15,
+    padding: responsiveWidth(4),
   },
   inputContainer: {
-    marginVertical: 10,
+    marginVertical: responsiveWidth(2),
     borderWidth: 1,
     borderColor: '#D5D8D5',
     borderRadius: 10,
-    height: 50,
+    paddingVertical: responsiveWidth(3.5),
   },
   input: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: responsiveWidth(4),
     color: '#171717',
-    fontSize: 16,
+    fontSize: fontSize.regularx,
   },
   bottomButton: {
     position: 'absolute',
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: '#0047AF',
-    height: 50,
+    bottom: responsiveWidth(5),
+    left: responsiveWidth(5),
+    right: responsiveWidth(5),
+    backgroundColor: color.primary,
+    paddingVertical: responsiveWidth(4),
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
     fontWeight: '500',
   },
   dateInput: {
@@ -172,10 +150,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
+    paddingHorizontal: responsiveWidth(4),
   },
   dateText: {
-    fontSize: 16,
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
     color: '#171717',
   },
   placeholderText: {
@@ -184,5 +163,3 @@ const styles = StyleSheet.create({
 });
 
 export default AddNewCustomer;
-
-
