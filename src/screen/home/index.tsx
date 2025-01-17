@@ -20,8 +20,10 @@ import {
   responsiveWidth,
 } from '../../constant/theme';
 import Svg, {Line, Rect} from 'react-native-svg';
+import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
+  const navigation = useNavigation();
   const [upcomingReminder, setUpcomingreminder] = useState([
     {id: 1},
     {id: 2},
@@ -49,7 +51,7 @@ const HomeScreen = () => {
             <Image source={icons.icReminderLogo} style={styles.logoStyle} />
             <Text style={styles.headerTitle}>Reminder</Text>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
             <Image source={icons.icNotification} style={styles.logoStyle} />
           </TouchableOpacity>
         </View>

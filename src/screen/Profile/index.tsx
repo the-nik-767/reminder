@@ -82,6 +82,7 @@ const ProfileScreen = () => {
         title="My Profile"
         rightIcon={icons.icEdit}
         rightIconStyle={styles.editIconStyle}
+        onPress={() => navigation.navigate('ProfileEdit')}
       />
       <ScrollView style={styles.scrollView}>
         <View style={styles.infoCard}>

@@ -25,6 +25,9 @@ import Profile from '../assets/svgs/profile.svg';
 import CustomerDetails from '../screen/CustomerDetails';
 import ReminderDetails from '../screen/ReminderDetails';
 import AddReminder from '../screen/AddReminder';
+import ProfileEdit from '../screen/ProfileEdit';
+import NotificationScreen from '../screen/Notifications';
+import ResetNewPassword from '../screen/ResetNewPassword';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -52,6 +55,9 @@ function MainNavigator() {
         <Stack.Screen name="CustomerDetails" component={CustomerDetails} />
         <Stack.Screen name="ReminderDetails" component={ReminderDetails} />
         <Stack.Screen name="AddReminder" component={AddReminder} />
+        <Stack.Screen name="ProfileEdit" component={ProfileEdit} />
+        <Stack.Screen name="Notifications" component={NotificationScreen} />
+        <Stack.Screen name="ResetNewPassword" component={ResetNewPassword} />
         {/* Add more screens here if needed */}
       </Stack.Navigator>
     </NavigationContainer>
