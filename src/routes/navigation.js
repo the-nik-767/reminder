@@ -12,7 +12,12 @@ import OTPVerification from '../screen/OTPVerification';
 import ForgotPassword from '../screen/ForgotPassword';
 import ResetPassword from '../screen/ResetPassword';
 import AddNewCustomer from '../screen/AddNewCustomer';
-import {color, responsiveHeight, responsiveWidth} from '../constant/theme';
+import {
+  color,
+  fontSize,
+  responsiveHeight,
+  responsiveWidth,
+} from '../constant/theme';
 import {Image, StyleSheet, Text, View} from 'react-native';
 import ProfileScreen from '../screen/Profile';
 import {icons} from '../assets';
@@ -28,6 +33,7 @@ import AddReminder from '../screen/AddReminder';
 import ProfileEdit from '../screen/ProfileEdit';
 import NotificationScreen from '../screen/Notifications';
 import ResetNewPassword from '../screen/ResetNewPassword';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -65,6 +71,7 @@ function MainNavigator() {
 }
 
 function MyTabs() {
+  const bottom = useSafeAreaInsets().bottom;
   return (
     <Tab.Navigator
       screenOptions={{
@@ -72,11 +79,10 @@ function MyTabs() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: color.primary,
-          // height: responsiveWidth('15%'),
+          height: responsiveWidth('12%') + bottom,
           paddingBottom: 0,
-          paddingTop: 8,
-          ...styles.shadow,
-          borderColor: 'gray',
+          // ...styles.shadow,
+          borderColor: color.primary,
         },
       }}>
       <Tab.Screen
@@ -85,11 +91,9 @@ function MyTabs() {
         options={{
           tabBarIcon: ({focused}) => (
             <View style={styles.tabItemContainer}>
-              <Home
-                width={24}
-                height={24}
-                fill={focused ? color.white : 'none'}
-                stroke={focused ? color.white : color.gray}
+              <Image
+                source={focused ? icons.icHomeActive : icons.icHome}
+                style={[styles.iconStyle]}
               />
               <Text style={styles.tabLabel}>Home</Text>
             </View>
@@ -104,8 +108,8 @@ function MyTabs() {
           tabBarIcon: ({focused}) => (
             <View style={styles.tabItemContainer}>
               <Practice
-                width={24}
-                height={24}
+                width={responsiveWidth(6)}
+                height={responsiveWidth(6)}
                 fill={focused ? color.white : 'none'}
                 stroke={focused ? color.white : color.gray}
               />
@@ -122,8 +126,8 @@ function MyTabs() {
           tabBarIcon: ({focused}) => (
             <View style={styles.tabItemContainer}>
               <Reminder
-                width={24}
-                height={24}
+                width={responsiveWidth(6)}
+                height={responsiveWidth(6)}
                 fill={focused ? color.white : 'none'}
                 stroke={focused ? color.white : color.gray}
               />
@@ -139,11 +143,9 @@ function MyTabs() {
         options={{
           tabBarIcon: ({focused}) => (
             <View style={styles.tabItemContainer}>
-              <Profile
-                width={24}
-                height={24}
-                fill={focused ? color.white : 'none'}
-                stroke={focused ? color.white : color.gray}
+              <Image
+                source={focused ? icons.icUserActive : icons.icUser}
+                style={[styles.iconStyle]}
               />
               <Text style={styles.tabLabel}>Profile</Text>
             </View>
@@ -169,16 +171,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    paddingVertical: 2,
-    width: responsiveWidth('25%'),
-    marginTop: 2,
   },
   tabLabel: {
-    fontSize: 12,
+    fontSize: fontSize.xsmall,
     marginTop: 4,
     textAlign: 'center',
     width: responsiveWidth('20%'),
     color: color.white,
+  },
+  iconStyle: {
+    height: responsiveWidth(6),
+    width: responsiveWidth(6),
+    resizeMode: 'contain',
   },
 });
 

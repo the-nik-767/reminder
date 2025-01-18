@@ -29,6 +29,7 @@ const Header: React.FC<ButtonProps> = ({
   rightIconStyle,
   onPress,
   showBack,
+  cutomReightContainer,
 }: any) => {
   const navigation = useNavigation();
   return (
@@ -52,6 +53,7 @@ const Header: React.FC<ButtonProps> = ({
             />
           </TouchableOpacity>
         ) : null}
+        {cutomReightContainer}
       </View>
     </SafeAreaView>
   );

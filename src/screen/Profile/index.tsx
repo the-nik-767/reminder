@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -24,12 +24,23 @@ import Profile from '../../assets/svgs/profileIc.svg';
 import Phone from '../../assets/svgs/phone.svg';
 import Email from '../../assets/svgs/email.svg';
 import Date from '../../assets/svgs/Date.svg';
+import Icon from 'react-native-vector-icons/Ionicons';
 import Business from '../../assets/svgs/business.svg';
 import Celender from '../../assets/svgs/celender.svg';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [userData, setUserData] = React.useState<any>(null);
+  const [open, setOpen] = useState(false);
+  const [businessCategories] = useState([
+    {label: 'Select Business Category', value: ''},
+    {label: 'Retail', value: 'retail'},
+    {label: 'Restaurant', value: 'restaurant'},
+    {label: 'Technology', value: 'technology'},
+    {label: 'Healthcare', value: 'healthcare'},
+    {label: 'Education', value: 'education'},
+  ]);
 
   React.useEffect(() => {
     getUserData();
@@ -68,9 +79,40 @@ const ProfileScreen = () => {
     return (
       <View style={[styles.profileSection2, containerStyle]}>
         {svgSource && svgSource}
+        {source && <Image source={source} style={styles.iconStyle} />}
         <View>
           <Text style={styles.profileTextTitle}>{title}</Text>
           <Text style={styles.profileTextDetails}>{value}</Text>
+        </View>
+      </View>
+    );
+  };
+
+  const SectionCard = ({source, title, value, iconStyle, showArrow}: any) => {
+    return (
+      <View style={styles.infoCard}>
+        <View style={styles.sectinCard}>
+          <Image
+            source={source}
+            style={[
+              styles.iconStyle,
+              {marginRight: responsiveWidth(3)},
+              iconStyle,
+            ]}
+          />
+          <View style={{alignSelf: 'center', flex: 1}}>
+            <Text style={styles.profileText}>{title}</Text>
+            {value ? (
+              <Text style={[styles.profileTextTitle, {marginLeft: 0}]}>
+                {value}
+              </Text>
+            ) : null}
+          </View>
+          {showArrow ? (
+            <View style={{alignSelf: 'center'}}>
+              <Icon name="chevron-forward" size={20} color={color.grayText} />
+            </View>
+          ) : null}
         </View>
       </View>
     );
@@ -92,22 +134,30 @@ const ProfileScreen = () => {
           </View>
 
           <DetailsSection
-            svgSource={<Profile width={24} height={24} />}
+            svgSource={
+              <Profile width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Name'}
             value={'Aadhya Patel'}
           />
           <DetailsSection
-            svgSource={<Email width={24} height={24} />}
+            svgSource={
+              <Email width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Email'}
             value={'aadhyapatel@gmail.com'}
           />
           <DetailsSection
-            svgSource={<Phone width={24} height={24} />}
+            svgSource={
+              <Phone width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Phone Number'}
             value={'+91 98855 89566'}
           />
           <DetailsSection
-            svgSource={<Date width={24} height={24} />}
+            svgSource={
+              <Date width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Date of Birth'}
             value={'11 Oct 1996'}
             containerStyle={{marginBottom: 0}}
@@ -122,27 +172,31 @@ const ProfileScreen = () => {
           </View>
 
           <DetailsSection
-            svgSource={<Profile width={24} height={24} />}
+            source={icons.icBusiness}
             title={'Business Name'}
             value={'Hermiston and Sons'}
           />
           <DetailsSection
-            svgSource={<Email width={24} height={24} />}
+            svgSource={
+              <Email width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Email'}
             value={'kristina.kuphal@lebsack.info'}
           />
           <DetailsSection
-            svgSource={<Phone width={24} height={24} />}
+            svgSource={
+              <Phone width={responsiveWidth(6)} height={responsiveWidth(6)} />
+            }
             title={'Phone Number'}
             value={'+91 98855 89566'}
           />
           <DetailsSection
-            svgSource={<Phone width={24} height={24} />}
+            source={icons.icCategory}
             title={'Category'}
             value={'IT technology'}
           />
           <DetailsSection
-            svgSource={<Date width={24} height={24} />}
+            source={icons.icLocation}
             title={'Address'}
             value={
               '3766 Braxton Street Bourbonnais, near school road, IL 60914'
@@ -150,6 +204,54 @@ const ProfileScreen = () => {
             containerStyle={{marginBottom: 0}}
           />
         </View>
+
+        <SectionCard
+          source={icons.icWallet}
+          title={'Wallet'}
+          value={'Balance : $500.50'}
+          showArrow
+        />
+
+        <View style={styles.infoCard}>
+          <View style={styles.sectinCard}>
+            <Image
+              source={icons.icLanguage}
+              style={[styles.iconStyle, {marginRight: responsiveWidth(3)}]}
+            />
+            <View style={{alignSelf: 'center', flex: 1}}>
+              <Text style={styles.profileText}>{'Select language'}</Text>
+            </View>
+          </View>
+
+          <View style={styles.dropdownContainer}>
+            <DropDownPicker
+              open={open}
+              value={'English'}
+              items={businessCategories}
+              setOpen={setOpen}
+              setValue={callback => {}}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownList}
+              placeholder="Select Language"
+              placeholderStyle={{color: color.gray}}
+              listMode="SCROLLVIEW"
+              zIndex={3000}
+            />
+          </View>
+        </View>
+
+        <SectionCard source={icons.icLock} title={'Reset password'} showArrow />
+        <SectionCard
+          source={icons.icCall}
+          title={'Customer support'}
+          iconStyle={styles.callIconStyle}
+        />
+        <SectionCard
+          source={icons.icPrivacyPolicy}
+          title={'Privacy policy'}
+          showArrow
+        />
+        <SectionCard source={icons.icLogout} title={'Logout'} />
       </ScrollView>
     </MainContainer>
   );
@@ -195,7 +297,7 @@ const styles = StyleSheet.create({
   },
   profileTextTitle: {
     fontFamily: 'Inter',
-    fontSize: 14,
+    fontSize: fontSize.regularx,
     fontWeight: '500',
     lineHeight: 16.94,
     letterSpacing: -0.28,
@@ -220,6 +322,39 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginLeft: responsiveWidth(3),
     color: color.black,
+  },
+  iconStyle: {
+    height: responsiveWidth(6),
+    width: responsiveWidth(6),
+    resizeMode: 'contain',
+  },
+  callIconStyle: {
+    height: responsiveWidth(4),
+    width: responsiveWidth(4),
+    resizeMode: 'contain',
+    marginRight: responsiveWidth(3),
+    marginLeft: responsiveWidth(1),
+    tintColor: color.primary,
+  },
+  sectinCard: {
+    flexDirection: 'row',
+  },
+  dropdownContainer: {
+    zIndex: 3000,
+    width: '100%',
+  },
+  dropdown: {
+    borderColor: color.lightgray,
+    borderRadius: responsiveWidth(2),
+    marginTop: responsiveWidth(1),
+    height: responsiveWidth(12),
+    backgroundColor: 'transparent',
+    zIndex: 3000,
+  },
+  dropdownList: {
+    borderColor: color.lightgray,
+    backgroundColor: color.white,
+    zIndex: 2000,
   },
 });
 

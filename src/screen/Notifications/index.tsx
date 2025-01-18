@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import React from 'react';
+import {useNavigation} from '@react-navigation/native';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { Header } from '../../components';
-import { icons } from '../../assets';
+import {Header} from '../../components';
+import {icons} from '../../assets';
+import {color, responsiveWidth} from '../../constant/theme';
 // import Header from '../../components/common/header';
 
 interface NotificationItem {
@@ -22,6 +23,7 @@ interface NotificationItem {
 
 const NotificationScreen = () => {
   const navigation = useNavigation();
+  const [isSelectAll, setisSelectAll] = useState(false);
   const notifications: NotificationItem[] = [
     {
       id: '1',
@@ -40,21 +42,15 @@ const NotificationScreen = () => {
     // Add more notifications as needed
   ];
 
-  const renderNotificationItem = ({ item }: { item: NotificationItem }) => (
+  const renderNotificationItem = ({item}: {item: NotificationItem}) => (
     <View style={styles.notificationItem}>
       <View style={styles.leftContent}>
         <View style={styles.iconContainer}>
-          {/* {item.type === 'template' ? (
-            <Image 
-              source={require('../../assets/template-icon.png')} 
-              style={styles.icon}
-            />
+          {item.type === 'template' ? (
+            <Image source={icons.icTypeTemplate} style={styles.icon} />
           ) : (
-            <Image 
-              source={require('../../assets/reminder-icon.png')} 
-              style={styles.icon}
-            />
-          )} */}
+            <Image source={icons.icTypeReminder} style={styles.icon} />
+          )}
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.title}>{item.title}</Text>
@@ -66,10 +62,10 @@ const NotificationScreen = () => {
       <View style={styles.rightContent}>
         <Text style={styles.time}>{item.time}</Text>
         <TouchableOpacity>
-          {/* <Image 
-            source={require('../../assets/close-icon.png')}
+          <Image
+            source={isSelectAll ? icons.icSelect : icons.icCloseThin}
             style={styles.closeIcon}
-          /> */}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -77,12 +73,18 @@ const NotificationScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* <Header title="Notifications" showBackButton /> */}
       <Header
-        title="My Profile"
-        rightIcon={icons.icEdit}
-        rightIconStyle={styles.editIconStyle}
-        onPress={() => navigation.navigate('ProfileEdit')}
+        title="Notifications"
+        showBack
+        rightIcon={icons.icSelectAll}
+        onPress={() => setisSelectAll(!isSelectAll)}
+        cutomReightContainer={
+          <TouchableOpacity
+            style={[styles.deleteIconContainer]}
+            onPress={() => {}}>
+            <Image source={icons.icDeleteLarge} style={[styles.iconStyle]} />
+          </TouchableOpacity>
+        }
       />
       <FlatList
         data={notifications}
@@ -97,19 +99,21 @@ const NotificationScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: color.primaryBackground,
   },
   listContainer: {
-    padding: 16,
+    padding: responsiveWidth(4),
+    paddingTop: 0,
   },
   notificationItem: {
     flexDirection: 'row',
-    backgroundColor: 'white',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
+    padding: responsiveWidth(3.5),
+    // paddingTop: 0,
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: color.border,
+    backgroundColor: color.white,
   },
   leftContent: {
     flexDirection: 'row',
@@ -124,9 +128,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 12,
   },
+  deleteIconContainer: {
+    backgroundColor: color.white,
+    height: responsiveWidth(8),
+    width: responsiveWidth(8),
+    borderRadius: responsiveWidth(4),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: responsiveWidth(3),
+  },
   icon: {
-    width: 24,
-    height: 24,
+    width: responsiveWidth(4.5),
+    height: responsiveWidth(4.5),
   },
   textContainer: {
     flex: 1,
@@ -149,8 +162,13 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   closeIcon: {
-    width: 16,
-    height: 16,
+    width: responsiveWidth(4),
+    height: responsiveWidth(4),
+  },
+  iconStyle: {
+    height: responsiveWidth(8),
+    width: responsiveWidth(8),
+    resizeMode: 'contain',
   },
 });
 

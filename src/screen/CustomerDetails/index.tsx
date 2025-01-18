@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    width: responsiveWidth(30),
+    paddingHorizontal: responsiveWidth(3),
   },
   editButton: {
     backgroundColor: color.white,

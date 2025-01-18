@@ -21,6 +21,7 @@ import {
 } from '../../constant/theme';
 import Searchbox from '../../components/common/searchbox';
 import {icons} from '../../assets';
+import {useNavigation} from '@react-navigation/native';
 
 // Define reminder types
 type ReminderStatus = 'upcoming' | 'sent' | 'failed';
@@ -244,6 +245,7 @@ const reminderData: Reminder[] = [
 ];
 
 const ReminderScreen = () => {
+  const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState<ReminderStatus>('upcoming');
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -413,7 +415,9 @@ const ReminderScreen = () => {
         </View>
       )}
 
-      <TouchableOpacity style={styles.addButton}>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => navigation.navigate('AddReminder')}>
         <Icon name="add" size={32} color="#FFFFFF" />
       </TouchableOpacity>
 

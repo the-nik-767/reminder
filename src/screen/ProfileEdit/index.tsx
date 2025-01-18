@@ -8,30 +8,24 @@ import {
   ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {Header} from '../../components';
+import {color} from '../../constant/theme';
 
 const ProfileEdit = () => {
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Icon name="chevron-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
-      </View>
+      <Header title="Edit Profile" showBack />
 
       <ScrollView style={styles.scrollView}>
         {/* Personal Details Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Details</Text>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Customer Name</Text>
             <TextInput
@@ -72,7 +66,7 @@ const ProfileEdit = () => {
         {/* Business Details Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Business Details</Text>
-          
+
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Business Name</Text>
             <TextInput
@@ -127,14 +121,14 @@ const ProfileEdit = () => {
           <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F6FA',
+    backgroundColor: color.primaryBackground,
   },
   header: {
     flexDirection: 'row',
@@ -200,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   saveButton: {
-    backgroundColor: '#0066FF',
+    backgroundColor: color.primary,
     marginHorizontal: 16,
     marginVertical: 24,
     paddingVertical: 14,

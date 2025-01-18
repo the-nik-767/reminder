@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,12 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { InputBox } from '../../components/common/inputBox';
+import {useNavigation} from '@react-navigation/native';
+import {InputBox} from '../../components/common/inputBox';
+import {Header} from '../../components';
+import {color, responsiveWidth} from '../../constant/theme';
 
-
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const ResetNewPassword = () => {
   const navigation = useNavigation();
@@ -28,66 +29,53 @@ const ResetNewPassword = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reset Password</Text>
-      </View>
+      <Header title="Reset Password" showBack />
 
       {/* Form Container */}
       <View style={styles.formContainer}>
         <InputBox
-          placeholder="Current Password"
+          title="Current Password"
           value={currentPassword}
           onChangeText={setCurrentPassword}
           secureTextEntry={!showCurrentPassword}
           showEyeIcon={true}
-          //   onRightIconPress={() => setShowCurrentPassword(!showCurrentPassword)}
-          inputboxContainer={styles.inputContainer}
+          inputboxContainer={styles.inputStyle}
         />
 
         <InputBox
-          placeholder="New Password"
+          title="New Password"
           value={newPassword}
           onChangeText={setNewPassword}
           secureTextEntry={!showNewPassword}
           showEyeIcon={true}
-          //   onRightIconPress={() => setShowNewPassword(!showNewPassword)}
-          inputboxContainer={styles.inputContainer}
+          inputboxContainer={styles.inputStyle}
         />
-
         <InputBox
-          placeholder="New Confirm Password"
+          title="New Confirm Password"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry={!showConfirmPassword}
           showEyeIcon={true}
-          //   onRightIconPress={() => setShowConfirmPassword(!showConfirmPassword)}
-          inputboxContainer={styles.inputContainer}
+          inputboxContainer={styles.inputStyle}
         />
       </View>
 
+      <View style={{flex: 1}} />
+
       {/* Save Button */}
-      <View style={styles.bottomContainer}>
-        {/* <CustomButton
-          title="Save"
-          onPress={handleSave}
-          containerStyle={styles.saveButton}
-        /> */}
-      </View>
-    </SafeAreaView>
+      <TouchableOpacity style={styles.saveButton}>
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FF',
+    backgroundColor: color.primaryBackground,
   },
   header: {
     flexDirection: 'row',
@@ -109,8 +97,12 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   formContainer: {
-    paddingHorizontal: width * 0.04,
-    marginTop: height * 0.02,
+    marginHorizontal: width * 0.04,
+    // marginTop: height * 0.02,
+    backgroundColor: color.white,
+    paddingHorizontal: responsiveWidth(4),
+    paddingBottom: responsiveWidth(4),
+    borderRadius: responsiveWidth(3),
   },
   inputContainer: {
     marginBottom: height * 0.02,
@@ -122,9 +114,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.04,
   },
   saveButton: {
-    backgroundColor: '#0066FF',
+    backgroundColor: color.primary,
+    marginHorizontal: 16,
+    marginVertical: 24,
+    paddingVertical: 14,
     borderRadius: 8,
-    height: height * 0.06,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  inputStyle: {
+    height: responsiveWidth('12%'),
+    marginTop: responsiveWidth('4%'),
+    borderRadius: responsiveWidth('2.5%'),
   },
 });
 
