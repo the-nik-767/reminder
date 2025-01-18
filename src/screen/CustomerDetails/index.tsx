@@ -23,6 +23,7 @@ import Date from '../../assets/svgs/Date.svg';
 import Business from '../../assets/svgs/business.svg';
 import Celender from '../../assets/svgs/celender.svg';
 import {Header} from '../../components';
+import {useRoute} from '@react-navigation/native';
 
 const reminderData = [
   {
@@ -42,7 +43,10 @@ const reminderData = [
   },
 ];
 
-const CustomerDetails = ({navigation}) => {
+const CustomerDetails = () => {
+  const route = useRoute();
+  const customerData = route.params?.customerData;
+  console.log('customerData', customerData);
   const [selectedType, setSelectedType] = useState('upcoming');
 
   const TabButton = ({isSelected, title, onPress}: any) => {
@@ -80,30 +84,28 @@ const CustomerDetails = ({navigation}) => {
             <Profile width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Customer Name</Text>
-              <Text style={styles.profileTextDetails}>Aadhya Patel</Text>
+              <Text style={styles.profileTextDetails}>{customerData?.customer_name || '-'}</Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Email width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Email</Text>
-              <Text style={styles.profileTextDetails}>
-                aadhyapatel@gmail.com
-              </Text>
+              <Text style={styles.profileTextDetails}>{customerData?.email || '-'}</Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Phone width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Phone Number</Text>
-              <Text style={styles.profileTextDetails}>+91 98855 89566</Text>
+              <Text style={styles.profileTextDetails}>{`+91 ${customerData?.phone}` || '-'}</Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Date width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Date of Birth</Text>
-              <Text style={styles.profileTextDetails}>11 Oct 1996</Text>
+              <Text style={styles.profileTextDetails}>{customerData?.date_of_birth || '-'}</Text>
             </View>
           </View>
           <View style={styles.profileSection2}>

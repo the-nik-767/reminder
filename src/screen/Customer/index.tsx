@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TextInput,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {MainContainer} from '../../components';
@@ -19,6 +20,17 @@ import {
 } from '../../constant/theme';
 import {icons} from '../../assets';
 import {useNavigation} from '@react-navigation/native';
+import {customerService, Customer} from '../../services/customer/customer.service';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+
+type RootStackParamList = {
+  CustomerDetails: {
+    customerData: CustomerData;
+  };
+  AddNewCustomer: undefined;
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
@@ -52,61 +64,80 @@ const AVATAR_COLORS = {
   Z: '#FFF3E0',
 };
 
-const customerData = [
-  {id: '1', name: 'Aadhya Patel', phone: '+91 98855 89566'},
-  {id: '2', name: 'Aadvika Patel', phone: '+91 98855 89566'},
-  {id: '3', name: 'Aaron Patel', phone: '+91 98855 89566'},
-  {id: '4', name: 'Alexander Patel', phone: '+91 98855 89566'},
-  {id: '5', name: 'Andrew Patel', phone: '+91 98855 89566'},
-  {id: '6', name: 'Adam Patel', phone: '+91 98855 89566'},
-  {id: '7', name: 'Bhavya Patel', phone: '+91 98855 89566'},
-  {id: '8', name: 'Chetan Patel', phone: '+91 98855 89566'},
-  {id: '9', name: 'Dhruv Patel', phone: '+91 98855 89566'},
-  // Add more customers with different starting letters
-];
+// Add this type definition at the top with other types
+type CustomerData = {
+  customer_name: string;
+  date_of_birth: string;
+  email: string;
+  id: number;
+  phone: string;
+  user_id: number;
+};
 
 const CustomerScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLetter, setSelectedLetter] = useState('');
+  const [customers, setCustomers] = useState<CustomerData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      const data = await customerService.getAllCustomers();
+      setCustomers(data);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      // You might want to show an error message to the user here
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter customers based on search query and selected letter
   const filteredCustomers = useCallback(() => {
-    let filtered = [...customerData];
+    let filtered = [...customers];
 
     if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
       filtered = filtered.filter(
         customer =>
-          customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          customer.phone.includes(searchQuery),
+          customer.customer_name.toLowerCase().includes(searchLower) ||
+          customer.phone.includes(searchQuery) ||
+          customer.email.toLowerCase().includes(searchLower)
       );
     }
 
     if (selectedLetter) {
       filtered = filtered.filter(customer =>
-        customer.name.toUpperCase().startsWith(selectedLetter),
+        customer.customer_name.toUpperCase().startsWith(selectedLetter)
       );
     }
 
     return filtered;
-  }, [searchQuery, selectedLetter]);
+  }, [searchQuery, selectedLetter, customers]);
 
   const getAvatarColor = (name: string) => {
     const firstLetter = name[0].toUpperCase();
     return AVATAR_COLORS[firstLetter] || '#E8EAF6';
   };
 
-  const renderCustomerItem = ({item}) => (
+  const renderCustomerItem = ({item}: {item: CustomerData}) => (
     <TouchableOpacity
       style={styles.customerItem}
-      onPress={() => navigation.navigate('CustomerDetails')}>
+      onPress={() => navigation.navigate('CustomerDetails', {
+        customerData: item
+      })}>
       <View style={styles.customerInfo}>
         <View
-          style={[styles.avatar, {backgroundColor: getAvatarColor(item.name)}]}>
-          <Text style={styles.avatarText}>{item.name[0]}</Text>
+          style={[styles.avatar, {backgroundColor: getAvatarColor(item.customer_name)}]}>
+          <Text style={styles.avatarText}>{item.customer_name[0]}</Text>
         </View>
         <View style={styles.customerDetails}>
-          <Text style={styles.customerName}>{item.name}</Text>
+          <Text style={styles.customerName}>{item.customer_name}</Text>
           <View style={styles.phoneContainer}>
             <Image source={icons.icCall} style={styles.callIconStyle} />
             <Text style={styles.phoneNumber}>{item.phone}</Text>
@@ -119,11 +150,11 @@ const CustomerScreen = () => {
     </TouchableOpacity>
   );
 
-  const renderAlphabetItem = ({item}) => (
+  const renderAlphabetItem = ({item}: {item: string}) => (
     <TouchableOpacity
       style={[
         styles.alphabetItem,
-        // selectedLetter === item && styles.selectedAlphabetItem,
+        selectedLetter === item && styles.selectedAlphabetItem,
       ]}
       onPress={() => {
         setSelectedLetter(selectedLetter === item ? '' : item);
@@ -131,7 +162,7 @@ const CustomerScreen = () => {
       <Text
         style={[
           styles.alphabetText,
-          'A' === item && styles.selectedAlphabetText,
+          selectedLetter === item && styles.selectedAlphabetText,
         ]}>
         {item}
       </Text>
@@ -158,17 +189,23 @@ const CustomerScreen = () => {
       <View style={styles.mainContent}>
         {/* Customer List */}
         <View style={{flex: 1}}>
-          <View style={styles.customerListContainer}>
-            <FlatList
-              data={filteredCustomers()}
-              renderItem={renderCustomerItem}
-              bounces={false}
-              keyExtractor={item => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.customerList}
-              ItemSeparatorComponent={() => <View style={styles.separator} />}
-            />
-          </View>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={color.primary} />
+            </View>
+          ) : (
+            <View style={styles.customerListContainer}>
+              <FlatList
+                data={filteredCustomers()}
+                renderItem={renderCustomerItem}
+                bounces={false}
+                keyExtractor={item => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.customerList}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+              />
+            </View>
+          )}
         </View>
 
         {/* Alphabet List */}
@@ -359,6 +396,11 @@ const styles = StyleSheet.create({
     height: responsiveWidth(3),
     width: responsiveWidth(3),
     resizeMode: 'contain',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

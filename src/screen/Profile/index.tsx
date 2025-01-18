@@ -88,9 +88,13 @@ const ProfileScreen = () => {
     );
   };
 
-  const SectionCard = ({source, title, value, iconStyle, showArrow}: any) => {
+  const SectionCard = ({source, title, value, iconStyle, showArrow, onPress}: any) => {
     return (
-      <View style={styles.infoCard}>
+      <TouchableOpacity 
+        style={styles.infoCard} 
+        onPress={onPress}
+        disabled={!onPress}
+      >
         <View style={styles.sectinCard}>
           <Image
             source={source}
@@ -114,7 +118,7 @@ const ProfileScreen = () => {
             </View>
           ) : null}
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -251,7 +255,11 @@ const ProfileScreen = () => {
           title={'Privacy policy'}
           showArrow
         />
-        <SectionCard source={icons.icLogout} title={'Logout'} />
+        <SectionCard 
+          source={icons.icLogout} 
+          title={'Logout'} 
+          onPress={handleLogout}
+        />
       </ScrollView>
     </MainContainer>
   );
