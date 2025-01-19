@@ -120,11 +120,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#D5D8D5',
     borderRadius: 10,
-    paddingVertical: responsiveWidth(3.5),
+    paddingVertical: 16,
   },
   input: {
     flex: 1,
-    paddingHorizontal: responsiveWidth(4),
+    paddingHorizontal: 16,
     color: '#171717',
     fontSize: fontSize.regularx,
   },

@@ -137,6 +137,7 @@ export const icons = {
   icHomeActive: require('./icons/icHomeActive.png'),
   icUser: require('./icons/icUser.png'),
   icUserActive: require('./icons/icUserActive.png'),
+  icTime: require('./icons/icTime.png'),
 };
 
 export const vid = {

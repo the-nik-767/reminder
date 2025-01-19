@@ -1,57 +1,45 @@
-import React, {useState} from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  SafeAreaView,
-  ScrollView,
   Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import React from 'react';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../../constant/theme';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {color, fontSize, responsiveWidth} from '../../constant/theme';
-import {Header} from '../../components';
-import {StepCounter} from './components/stepCounter';
-import BasicInfo from './steps/basicInfo';
-import ScheduleInfo from './steps/schedule';
-import SelectTemplet from './steps/selectTemplet';
 
-const AddReminder = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+const SelectTemplet = ({onPressBack}) => {
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <Header title="Add Reminder" showBack />
+    <View style={{flex: 1}}>
+      {/* Form Container */}
+      <View style={{flex: 1}}>
+        <View style={styles.formCard}>
+          <Text style={styles.formTitle}>{'Selected templet'}</Text>
+        </View>
+      </View>
 
-      {/* Progress Steps */}
-      <StepCounter currentStep={currentStep} />
-
-      {/* step 1 Container */}
-      {currentStep == 1 && <BasicInfo onPressNext={() => setCurrentStep(3)} />}
-
-      {/* Select Templet */}
-      {currentStep == 2 && (
-        <SelectTemplet onPressBack={() => setCurrentStep(1)} />
-      )}
-
-      {/* step 3 Container */}
-      {currentStep == 3 && (
-        <ScheduleInfo
-          onPressBack={() => {
-            setCurrentStep(1);
-          }}
-        />
-      )}
+      {/* Next Button */}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => onPressBack()}>
+          <Text style={styles.nextButtonText}>Back</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
+export default SelectTemplet;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: color.primaryBackground,
-  },
   formCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
@@ -87,7 +75,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E5EA',
     borderRadius: 10,
-    padding: 16,
+    padding: responsiveWidth(4),
     fontSize: fontSize.regularx,
   },
   customerInputContainer: {
@@ -101,7 +89,7 @@ const styles = StyleSheet.create({
   },
   customerInput: {
     flex: 1,
-    padding: 16,
+    padding: responsiveWidth(4),
     fontSize: fontSize.regularx,
   },
   userIcon: {
@@ -109,25 +97,22 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   bottomContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     padding: responsiveWidth(4),
     backgroundColor: color.primaryBackground,
   },
   nextButton: {
-    backgroundColor: color.primary,
+    backgroundColor: color.white,
     borderRadius: 12,
-    padding: 16,
+    padding: responsiveWidth(4),
     alignItems: 'center',
     marginBottom: Platform.OS === 'ios' ? 20 : 16,
+    borderWidth: 1,
+    borderColor: color.primary,
   },
   nextButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
+    color: color.primary,
+    fontSize: fontSize.regular,
     fontWeight: '600',
+    fontFamily: fontFamily.regular,
   },
 });
-
-export default AddReminder;
