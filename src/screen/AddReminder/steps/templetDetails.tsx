@@ -13,6 +13,7 @@ import {
   color,
   fontFamily,
   fontSize,
+  responsiveHeight,
   responsiveWidth,
 } from '../../../constant/theme';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -144,6 +145,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(2),
     paddingTop: responsiveWidth(3),
     paddingBottom: responsiveWidth(4),
+    minHeight: responsiveHeight(30),
   },
 
   closeIconStyle: {

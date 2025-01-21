@@ -6,83 +6,98 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  color,
+  fontFamily,
+  fontSize,
+  responsiveWidth,
+} from '../../constant/theme';
+import {Header} from '../../components';
+import {icons} from '../../assets';
 
 const ReminderDetails = () => {
+  const DetailsConainer = ({title, value, detailsValue}: any) => {
+    return (
+      <View style={{marginBottom: responsiveWidth(0)}}>
+        <Text style={styles.detailsTitleStyle}>{title}</Text>
+        <Text style={[styles.detailsValue, detailsValue]}>{value}</Text>
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Icon name="chevron-back" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Reminder Details</Text>
-        <TouchableOpacity>
-          <Icon name="create-outline" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <Header
+        title="Reminder Details"
+        showBack
+        rightIcon={icons.icEdit}
+        rightIconStyle={styles.editIconStyle}
+      />
 
-      {/* Main Content Card */}
-      <View style={styles.card}>
-        {/* Reminder Name */}
-        <View style={styles.reminderNameContainer}>
-          <Icon name="calendar" size={24} color="#007AFF" />
-          <Text style={styles.reminderName}>Reminder Name ABC</Text>
-        </View>
+      <ScrollView style={{flex: 1}}>
+        {/* Main Content Card */}
+        <View style={styles.card}>
+          {/* Reminder Name */}
+          <View style={styles.reminderNameContainer}>
+            {/* <Icon name="calendar" size={24} color="#007AFF" /> */}
+            <Image source={icons.icCalendarReminder} style={styles.iconStyle} />
+            <Text style={styles.reminderName}>Reminder Name ABC</Text>
+          </View>
 
-        {/* Message Preview */}
-        <View style={styles.messagePreview}>
-          <Text style={styles.messageText}>
-            Happy Birthday Janak Vaghela! 🎉🎂{'\n\n'}
-            We at Vanani Clinic wish you a wonderful day filled with joy and good health.{'\n\n'}
-            9876543210 call us to book your appointment and for more information!{'\n\n'}
-            - Vanani Clinic
-          </Text>
-          <Text style={styles.messageTime}>1:01 PM</Text>
-        </View>
+          {/* Message Preview */}
+          <View style={styles.messagePreviewContainer}>
+            <View style={styles.messagePreview}>
+              <Text style={styles.messageText}>
+                Happy Birthday Janak Vaghela! 🎉🎂{'\n\n'}
+                We at Vanani Clinic wish you a wonderful day filled with joy and
+                good health.{'\n\n'}
+                9876543210 call us to book your appointment and for more
+                information!{'\n\n'}- Vanani Clinic
+              </Text>
+              <Text style={styles.messageTime}>1:01 PM</Text>
+            </View>
+          </View>
 
-        {/* Reminder Info Grid */}
-        <View style={styles.infoGrid}>
+          {/* Reminder Info Grid */}
+
           <View style={styles.infoRow}>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Reminder Status</Text>
-              <Text style={[styles.infoValue, styles.upcomingStatus]}>Upcoming</Text>
+              <DetailsConainer
+                title={'Reminder Status'}
+                detailsValue={{color: color.primaryGreen}}
+                value={'Upcoming'}
+              />
             </View>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Reminder Type</Text>
-              <Text style={styles.infoValue}>Recurring</Text>
+              <DetailsConainer title={'Reminder Type'} value={'Recurring'} />
             </View>
           </View>
 
           <View style={styles.infoRow}>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Repeat Every</Text>
-              <Text style={styles.infoValue}>Sunday</Text>
+              <DetailsConainer title={'Repeat Every'} value={'Sunday'} />
             </View>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Time</Text>
-              <Text style={styles.infoValue}>7:00 AM</Text>
+              <DetailsConainer title={'Time'} value={'7:00 AM'} />
             </View>
           </View>
 
           <View style={styles.infoRow}>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Recurring Type</Text>
-              <Text style={styles.infoValue}>Weekly</Text>
+              <DetailsConainer title={'Recurring Type'} value={'Weekly'} />
             </View>
             <View style={styles.infoColumn}>
-              <Text style={styles.infoLabel}>Stop Repeating</Text>
-              <Text style={styles.infoValue}>31 Dec 2025</Text>
+              <DetailsConainer title={'Stop Repeating'} value={'31 Dec 2025'} />
             </View>
           </View>
         </View>
-      </View>
 
-      {/* Added Customers Section */}
-      <View style={styles.customersSection}>
-        <Text style={styles.sectionTitle}>Added Customers</Text>
-        <View style={styles.customersList}>
+        <View style={styles.formCard}>
+          <Text style={styles.formTitle}>Added Customers</Text>
+
           <View style={styles.customerCard}>
             <View style={styles.customerInfo}>
               <View style={styles.avatar}>
@@ -90,23 +105,26 @@ const ReminderDetails = () => {
               </View>
               <View style={styles.customerDetails}>
                 <Text style={styles.customerName}>Maya Patel</Text>
-                <Text style={styles.customerPhone}>98855 89566</Text>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Image source={icons.icCall} style={styles.callIconStyle} />
+                  <Text style={styles.customerPhone}>98855 89566</Text>
+                </View>
               </View>
             </View>
             <TouchableOpacity style={styles.deleteButton}>
-              <Icon name="trash-outline" size={24} color="#FF3B30" />
+              <Image source={icons.icTrash} style={styles.deleteIconStyle} />
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F7',
+    backgroundColor: color.primaryBackground,
   },
   header: {
     flexDirection: 'row',
@@ -115,7 +133,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: '4%',
     paddingVertical: 16,
     backgroundColor: '#F2F2F7',
-   
   },
   headerTitle: {
     fontSize: 20,
@@ -126,9 +143,10 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    marginHorizontal: '4%',
-    marginVertical: 12,
-    padding: '4%',
+    marginHorizontal: responsiveWidth(4),
+    marginVertical: responsiveWidth(4),
+    marginTop: responsiveWidth(0),
+    padding: responsiveWidth(4),
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -141,15 +159,24 @@ const styles = StyleSheet.create({
   reminderNameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: '4%',
+    marginBottom: responsiveWidth(3),
   },
   reminderName: {
-    fontSize: 22,
+    fontSize: fontSize.regular,
     fontWeight: '600',
-    marginLeft: 8,
+    marginLeft: responsiveWidth(1),
+    color: color.black,
+    fontFamily: fontFamily.regular,
+  },
+  messagePreviewContainer: {
+    backgroundColor: '#e2ded7',
+    paddingHorizontal: responsiveWidth(6),
+    paddingTop: responsiveWidth(4),
+    paddingBottom: responsiveWidth(6),
+    marginBottom: responsiveWidth(3),
   },
   messagePreview: {
-    backgroundColor: '#F2F2F7',
+    backgroundColor: color.white,
     borderRadius: 12,
     padding: '4%',
     marginBottom: '4%',
@@ -166,54 +193,25 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   infoGrid: {
-    gap: '4%',
+    // gap: '4%',
   },
   infoRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: '3%',
+    marginBottom: responsiveWidth(4),
   },
   infoColumn: {
     flex: 1,
   },
-  infoLabel: {
-    fontSize: 15,
-    color: '#8E8E93',
-    marginBottom: 4,
-  },
-  infoValue: {
-    fontSize: 17,
-    fontWeight: '600',
-  },
-  upcomingStatus: {
-    color: '#34C759',
-  },
+
   customersSection: {
-    paddingHorizontal: '4%',
-    paddingVertical: '3%',
-    marginBottom: 40,
-  },
-  customersList: {
-    width: '100%',
-    marginBottom: 20,
+    paddingHorizontal: responsiveWidth(4),
+    paddingVertical: responsiveWidth(3.5),
+    marginBottom: responsiveWidth(4),
   },
   customerCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: '4%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginVertical: 8,
-    marginBottom: 16,
   },
   customerInfo: {
     flexDirection: 'row',
@@ -235,28 +233,81 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   avatarText: {
-    fontSize: 18,
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
     fontWeight: '600',
-    color: '#8E8E93',
+    color: color.black,
   },
   customerName: {
-    fontSize: 17,
-    fontWeight: '600',
+    fontSize: fontSize.regular,
+    fontFamily: fontFamily.regular,
     marginBottom: 4,
-    color: '#000000',
+    color: color.black,
   },
   customerPhone: {
-    fontSize: 15,
-    color: '#8E8E93',
+    fontSize: fontSize.minix,
+    color: color.grayText,
+    fontFamily: fontFamily.regular,
   },
   deleteButton: {
     padding: 8,
   },
-  sectionTitle: {
-    fontSize: 22,
+  editIconStyle: {
+    height: responsiveWidth(4.5),
+    width: responsiveWidth(4.5),
+    resizeMode: 'contain',
+  },
+  iconStyle: {
+    height: responsiveWidth(5),
+    width: responsiveWidth(5),
+    resizeMode: 'contain',
+  },
+  detailsValue: {
+    fontSize: fontSize.regular,
+    fontFamily: fontFamily.regular,
+    marginBottom: responsiveWidth(0),
+    color: color.black,
+    fontWeight: '500',
+  },
+  detailsTitleStyle: {
+    fontSize: fontSize.minix,
+    fontFamily: fontFamily.regular,
+    marginBottom: responsiveWidth(1),
+    color: color.grayText,
+  },
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginHorizontal: responsiveWidth(4),
+    padding: responsiveWidth(4),
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+    marginBottom: responsiveWidth(8),
+  },
+  formTitle: {
+    fontSize: fontSize.regular,
     fontWeight: '600',
-    marginBottom: '4%',
-    color: '#000000',
+    marginBottom: responsiveWidth(4),
+  },
+  deleteIconStyle: {
+    height: responsiveWidth(6),
+    width: responsiveWidth(6),
+    resizeMode: 'contain',
+  },
+  callIconStyle: {
+    height: responsiveWidth(3),
+    width: responsiveWidth(3),
+    resizeMode: 'contain',
+    marginRight: responsiveWidth(1),
   },
 });
 

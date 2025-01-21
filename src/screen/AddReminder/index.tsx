@@ -16,9 +16,11 @@ import {StepCounter} from './components/stepCounter';
 import BasicInfo from './steps/basicInfo';
 import ScheduleInfo from './steps/schedule';
 import SelectTemplet from './steps/selectTemplet';
+import PreviewReminder from './steps/previewReminder';
 
 const AddReminder = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showPreview, setShowPreview] = useState(false);
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -44,8 +46,20 @@ const AddReminder = () => {
           onPressBack={() => {
             setCurrentStep(2);
           }}
+          onPressPreview={() => {
+            setShowPreview(true);
+          }}
         />
       )}
+      <PreviewReminder
+        onPressConfirm={() => {
+          setShowPreview(false);
+        }}
+        onPressClose={() => {
+          setShowPreview(false);
+        }}
+        visible={showPreview}
+      />
     </View>
   );
 };

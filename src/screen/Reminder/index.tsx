@@ -350,7 +350,10 @@ const ReminderScreen = () => {
           <FlatList
             data={getFilteredReminders()}
             renderItem={({item}) => (
-              <View style={styles.reminderItem}>
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.reminderItem}
+                onPress={() => navigation.navigate('ReminderDetails')}>
                 <View style={styles.reminderTitleRow}>
                   <View style={styles.titleContainer}>
                     <Image
@@ -403,7 +406,7 @@ const ReminderScreen = () => {
                     <Text style={styles.typeText}>{` ${item.type}`}</Text>
                   </View>
                 </View>
-              </View>
+              </TouchableOpacity>
             )}
             keyExtractor={item => item.id}
             ItemSeparatorComponent={() => <View style={styles.separator} />}

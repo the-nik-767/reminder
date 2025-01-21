@@ -20,7 +20,7 @@ import {icons} from '../../../assets';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {monthList, monthListWithShortName} from '../../../constant/global';
 
-const ScheduleInfo = ({onPressBack}) => {
+const ScheduleInfo = ({onPressBack, onPressPreview}: any) => {
   const [reminderType, setReminderType] = useState('one_time');
   const [selectedOption, setSelectedOption] = useState('Monthly');
   const [selectedDay, setSelectedDay] = useState('');
@@ -317,7 +317,9 @@ const ScheduleInfo = ({onPressBack}) => {
           </Text>
         </TouchableOpacity>
         <View style={{flex: 0.1}} />
-        <TouchableOpacity style={styles.nextButton}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => onPressPreview()}>
           <Text style={styles.nextButtonText}>View Preview</Text>
         </TouchableOpacity>
       </View>
