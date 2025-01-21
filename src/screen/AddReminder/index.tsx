@@ -28,18 +28,21 @@ const AddReminder = () => {
       <StepCounter currentStep={currentStep} />
 
       {/* step 1 Container */}
-      {currentStep == 1 && <BasicInfo onPressNext={() => setCurrentStep(3)} />}
+      {currentStep == 1 && <BasicInfo onPressNext={() => setCurrentStep(2)} />}
 
       {/* Select Templet */}
       {currentStep == 2 && (
-        <SelectTemplet onPressBack={() => setCurrentStep(1)} />
+        <SelectTemplet
+          onPressBack={() => setCurrentStep(1)}
+          onPressSave={() => setCurrentStep(3)}
+        />
       )}
 
       {/* step 3 Container */}
       {currentStep == 3 && (
         <ScheduleInfo
           onPressBack={() => {
-            setCurrentStep(1);
+            setCurrentStep(2);
           }}
         />
       )}

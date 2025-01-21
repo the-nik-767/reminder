@@ -8,12 +8,17 @@ import {
   responsiveWidth,
 } from '../../constant/theme';
 
-const Searchbox = ({value, onChangeText, searchContainerStyle}: any) => {
+const Searchbox = ({
+  value,
+  onChangeText,
+  searchContainerStyle,
+  placeholder,
+}: any) => {
   return (
     <View style={[styles.searchContainer, searchContainerStyle]}>
       <TextInput
         style={styles.searchInput}
-        placeholder="Search Customers"
+        placeholder={placeholder || 'Search Customers'}
         placeholderTextColor="#8E8E93"
         value={value}
         onChangeText={onChangeText}
