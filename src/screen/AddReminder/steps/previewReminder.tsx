@@ -2,6 +2,7 @@ import {
   Image,
   Modal,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -32,50 +33,55 @@ const PreviewReminder = ({onPressConfirm, onPressClose, visible}: any) => {
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text style={styles.formTitle}>{'Selected templet'}</Text>
-            <TouchableOpacity onPress={onPressClose}>
-              <Image source={icons.icCloseThin} style={styles.closeIconStyle} />
-            </TouchableOpacity>
-          </View>
-
-          <DetailsConainer
-            title={'Reminder Name'}
-            value={'Customer Birthday'}
-          />
-          <DetailsConainer
-            title={'Customer Name'}
-            value={'Mahi Patel, Tanvi Patel'}
-          />
-
-          {/* Message */}
-          <View style={styles.cardContainer}>
-            <View style={styles.cardSubContainer}>
-              <Text>{templetDetails?.message}</Text>
+          <ScrollView>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={styles.formTitle}>{'Reminder Preview'}</Text>
+              <TouchableOpacity onPress={onPressClose}>
+                <Image
+                  source={icons.icCloseThin}
+                  style={styles.closeIconStyle}
+                />
+              </TouchableOpacity>
             </View>
-          </View>
 
-          {/* extra detail */}
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-              <DetailsConainer title={'Reminder Type'} value={'Recurring'} />
-            </View>
-            <View style={{flex: 1}}>
-              <DetailsConainer title={'Recurring Type'} value={'Weekly'} />
-            </View>
-          </View>
+            <DetailsConainer
+              title={'Reminder Name'}
+              value={'Customer Birthday'}
+            />
+            <DetailsConainer
+              title={'Customer Name'}
+              value={'Mahi Patel, Tanvi Patel'}
+            />
 
-          <View style={{flexDirection: 'row'}}>
-            <View style={{flex: 1}}>
-              <DetailsConainer title={'Repeat Every'} value={'Sunday'} />
+            {/* Message */}
+            <View style={styles.cardContainer}>
+              <View style={styles.cardSubContainer}>
+                <Text>{templetDetails?.message}</Text>
+              </View>
             </View>
-            <View style={{flex: 1}}>
-              <DetailsConainer title={'Time'} value={'7:00 AM'} />
+
+            {/* extra detail */}
+            <View style={{flexDirection: 'row'}}>
+              <View style={{flex: 1}}>
+                <DetailsConainer title={'Reminder Type'} value={'Recurring'} />
+              </View>
+              <View style={{flex: 1}}>
+                <DetailsConainer title={'Recurring Type'} value={'Weekly'} />
+              </View>
             </View>
-          </View>
 
-          <DetailsConainer title={'Stop Repeating'} value={'31 Dec 2025'} />
+            <View style={{flexDirection: 'row'}}>
+              <View style={{flex: 1}}>
+                <DetailsConainer title={'Repeat Every'} value={'Sunday'} />
+              </View>
+              <View style={{flex: 1}}>
+                <DetailsConainer title={'Time'} value={'7:00 AM'} />
+              </View>
+            </View>
 
+            <DetailsConainer title={'Stop Repeating'} value={'31 Dec 2025'} />
+          </ScrollView>
           {/* Button */}
           <TouchableOpacity
             style={styles.nextButton}

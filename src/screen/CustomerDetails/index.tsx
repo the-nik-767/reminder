@@ -23,7 +23,7 @@ import Date from '../../assets/svgs/Date.svg';
 import Business from '../../assets/svgs/business.svg';
 import Celender from '../../assets/svgs/celender.svg';
 import {Header} from '../../components';
-import {useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 
 const reminderData = [
   {
@@ -45,6 +45,7 @@ const reminderData = [
 
 const CustomerDetails = () => {
   const route = useRoute();
+  const navigation = useNavigation();
   const customerData = route.params?.customerData;
   console.log('customerData', customerData);
   const [selectedType, setSelectedType] = useState('upcoming');
@@ -84,28 +85,36 @@ const CustomerDetails = () => {
             <Profile width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Customer Name</Text>
-              <Text style={styles.profileTextDetails}>{customerData?.customer_name || '-'}</Text>
+              <Text style={styles.profileTextDetails}>
+                {customerData?.customer_name || '-'}
+              </Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Email width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Email</Text>
-              <Text style={styles.profileTextDetails}>{customerData?.email || '-'}</Text>
+              <Text style={styles.profileTextDetails}>
+                {customerData?.email || '-'}
+              </Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Phone width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Phone Number</Text>
-              <Text style={styles.profileTextDetails}>{`+91 ${customerData?.phone}` || '-'}</Text>
+              <Text style={styles.profileTextDetails}>
+                {`+91 ${customerData?.phone}` || '-'}
+              </Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
             <Date width={24} height={24} />
             <View>
               <Text style={styles.profileTextTitle}>Date of Birth</Text>
-              <Text style={styles.profileTextDetails}>{customerData?.date_of_birth || '-'}</Text>
+              <Text style={styles.profileTextDetails}>
+                {customerData?.date_of_birth || '-'}
+              </Text>
             </View>
           </View>
           <View style={styles.profileSection2}>
@@ -127,7 +136,11 @@ const CustomerDetails = () => {
           <View style={styles.bottomSection}>
             <Text style={styles.bottomText}>Reminders</Text>
 
-            <TouchableOpacity style={styles.addButton}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => {
+                navigation.navigate('AddNewCustomer');
+              }}>
               <View style={styles.plusIconContainer}>
                 <Icon name="plus" size={15} color={color.white} />
               </View>
