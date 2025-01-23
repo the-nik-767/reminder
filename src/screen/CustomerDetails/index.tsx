@@ -139,7 +139,7 @@ const CustomerDetails = () => {
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => {
-                navigation.navigate('AddNewCustomer');
+                navigation.navigate('AddReminder');
               }}>
               <View style={styles.plusIconContainer}>
                 <Icon name="plus" size={15} color={color.white} />

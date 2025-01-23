@@ -20,6 +20,11 @@ interface ButtonProps extends TouchableOpacityProps {
   onPress?: () => void;
   Customcontainer?: ViewStyle;
   titleStyle?: TextStyle;
+  showBack?: boolean;
+  rightIcon?: any;
+  rightIconContainerStyle?: ViewStyle;
+  rightIconStyle?: any;
+  cutomReightContainer?: React.ReactNode;
 }
 
 const Header: React.FC<ButtonProps> = ({

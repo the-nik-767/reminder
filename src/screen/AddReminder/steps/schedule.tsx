@@ -7,8 +7,9 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   color,
   fontFamily,
@@ -19,310 +20,390 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {icons} from '../../../assets';
 import DropDownPicker from 'react-native-dropdown-picker';
 import {monthList, monthListWithShortName} from '../../../constant/global';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import moment from 'moment';
 
-const ScheduleInfo = ({onPressBack, onPressPreview}: any) => {
-  const [reminderType, setReminderType] = useState('one_time');
-  const [selectedOption, setSelectedOption] = useState('Monthly');
-  const [selectedDay, setSelectedDay] = useState('');
-  const [open, setOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(null);
-  const [arrayOfDays, setArrayOfDays] = useState([]);
-  const [openYear, setOpenYear] = useState(false);
-  const [selectedYear, setSelectedYear] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
+interface ScheduleInfoProps {
+  onPressBack: () => void;
+  onPressPreview: () => void;
+  onSubmit: (data: {
+    reminder_type: 'one_Time' | 'recurring';
+    reminder_date?: string;
+    reminder_time: string;
+    stopping_date?: string;
+    day_of_month?: number;
+    month_of_year?: number;
+    recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  }) => void;
+  initialData?: {
+    reminder_type: 'one_Time' | 'recurring';
+    reminder_date?: string;
+    reminder_time: string;
+    stopping_date?: string;
+    day_of_month?: number;
+    month_of_year?: number;
+    recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  };
+}
 
-  const yearList = [{label: '1 Year', value: 'year'}];
+const ScheduleInfo: React.FC<ScheduleInfoProps> = ({
+  onPressBack,
+  onPressPreview,
+  onSubmit,
+  initialData,
+}) => {
+  const [reminderType, setReminderType] = useState<'one_Time' | 'recurring'>(
+    initialData?.reminder_type || 'one_Time',
+  );
+  const [recurringType, setRecurringType] = useState<
+    'daily' | 'weekly' | 'monthly' | 'yearly'
+  >(initialData?.recurring_type || 'daily');
+  const [selectedDay, setSelectedDay] = useState<number>(
+    initialData?.day_of_month || 1,
+  );
+  const [selectedMonth, setSelectedMonth] = useState<number>(
+    initialData?.month_of_year || 1,
+  );
+  const [reminderTime, setReminderTime] = useState(
+    initialData?.reminder_time
+      ? new Date(`2000-01-01T${initialData.reminder_time}`)
+      : new Date(),
+  );
+  const [stoppingDate, setStoppingDate] = useState(
+    initialData?.stopping_date
+      ? new Date(initialData.stopping_date)
+      : new Date(moment().add(1, 'year').format()),
+  );
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [errors, setErrors] = useState({
+    reminderTime: '',
+    stoppingDate: '',
+    day: '',
+    month: '',
+    reminderDate: '',
+  });
+  const [reminderDate, setReminderDate] = useState(
+    initialData?.reminder_date
+      ? new Date(initialData.reminder_date)
+      : new Date()
+  );
 
-  const recurringType = [
-    {id: 1, title: 'Daily'},
-    {id: 2, title: 'Weekly'},
-    {id: 3, title: 'Monthly'},
-    {id: 4, title: 'Yearly'},
-  ];
+  const days = Array.from({length: 31}, (_, i) => ({
+    label: `${i + 1}`,
+    value: i + 1,
+  }));
 
-  const recurringDays = [
-    {id: 1, title: 'Monday'},
-    {id: 2, title: 'Tuesday'},
-    {id: 3, title: 'Wednesday'},
-    {id: 4, title: 'Thursday'},
-    {id: 5, title: 'Friday'},
-    {id: 6, title: 'Saturday'},
-    {id: 7, title: 'Sunday'},
-  ];
+  const months = Array.from({length: 12}, (_, i) => ({
+    label: moment()
+      .month(i)
+      .format('MMMM'),
+    value: i + 1,
+  }));
 
-  const renderCalendar = () => {
-    return (
-      <>
-        <Text style={styles.inputLabel}>{'Repeat by day of the month'}</Text>
-        <View style={styles.calendarContainer}>
-          {arrayOfDays?.map((i, index) => {
-            return (
-              <TouchableOpacity
-                key={index.toString()}
-                onPress={() => {
-                  setSelectedDate(i.value);
-                }}
-                style={[
-                  styles.dayContainer,
-                  i.value == selectedDate && styles.selectedDateContainer,
-                ]}>
-                <Text
-                  style={[
-                    styles.dayTextContainer,
-                    i.value == selectedDate && styles.selectedTextDateContainer,
-                  ]}>
-                  {i?.value}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </>
-    );
+  const validate = () => {
+    const newErrors = {
+      reminderTime: '',
+      stoppingDate: '',
+      day: '',
+      month: '',
+      reminderDate: '',
+    };
+    let isValid = true;
+
+    if (!reminderTime || !moment(reminderTime).isValid()) {
+      newErrors.reminderTime = 'Please select a valid reminder time';
+      isValid = false;
+    }
+
+    if (reminderType === 'one_Time') {
+      if (!reminderDate || !moment(reminderDate).isValid()) {
+        newErrors.reminderDate = 'Please select a valid reminder date';
+        isValid = false;
+      }
+    }
+
+    if (reminderType === 'recurring' && !stoppingDate) {
+      newErrors.stoppingDate = 'Please select stopping date';
+      isValid = false;
+    }
+
+    if (
+      reminderType === 'recurring' &&
+      (recurringType === 'monthly' || recurringType === 'yearly') &&
+      !selectedDay
+    ) {
+      newErrors.day = 'Please select day';
+      isValid = false;
+    }
+
+    if (reminderType === 'recurring' && recurringType === 'yearly' && !selectedMonth) {
+      newErrors.month = 'Please select month';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    const formattedData = {
+      reminder_type: reminderType,
+      reminder_time: moment(reminderTime).format('HH:mm:ss'),
+      ...(reminderType === 'one_Time' && {
+        reminder_date: moment(reminderDate).format('YYYY-MM-DD'),
+      }),
+      ...(reminderType === 'recurring' && {
+        recurring_type: recurringType,
+        stopping_date: moment(stoppingDate).format('YYYY-MM-DD'),
+        ...(recurringType === 'monthly' || recurringType === 'yearly' ? { day_of_month: selectedDay } : {}),
+        ...(recurringType === 'yearly' ? { month_of_year: selectedMonth } : {})
+      })
+    };
+
+    console.log('Submitting Schedule Data:', formattedData);
+    onSubmit(formattedData);
   };
 
   return (
     <View style={{flex: 1}}>
-      {/* Form Container */}
-      <View style={{flex: 1}}>
+      <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
         <View style={styles.formCard}>
-          <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-            <Text style={styles.formTitle}>{'Schedule'}</Text>
+          <Text style={styles.formTitle}>Schedule</Text>
 
-            {/* Radio Button */}
-            <Text style={styles.inputLabel}>{'Select Reminder Type'}</Text>
-            <View style={styles.section}>
+          {/* Reminder Type */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reminder Type</Text>
+            <View style={styles.radioGroup}>
               <TouchableOpacity
-                style={styles.radioRow}
-                onPress={() => setReminderType('one_time')}>
-                <View style={styles.radioOuter}>
-                  {reminderType === 'one_time' && (
+                style={styles.radioButton}
+                onPress={() => setReminderType('one_Time')}>
+                <View
+                  style={[
+                    styles.radio,
+                    reminderType === 'one_Time' && styles.radioSelected,
+                  ]}>
+                  {reminderType === 'one_Time' && (
                     <View style={styles.radioInner} />
                   )}
                 </View>
-                <Text style={styles.radioText}>One Time</Text>
+                <Text style={styles.radioLabel}>One Time</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.radioRow, {marginTop: 8}]}
+                style={styles.radioButton}
                 onPress={() => setReminderType('recurring')}>
-                <View style={styles.radioOuter}>
+                <View
+                  style={[
+                    styles.radio,
+                    reminderType === 'recurring' && styles.radioSelected,
+                  ]}>
                   {reminderType === 'recurring' && (
                     <View style={styles.radioInner} />
                   )}
                 </View>
-                <Text style={styles.radioText}>Recurring</Text>
+                <Text style={styles.radioLabel}>Recurring</Text>
               </TouchableOpacity>
             </View>
+          </View>
 
-            {/* Recurring */}
-            {reminderType === 'recurring' ? (
-              <>
-                <Text style={styles.inputLabel}>{'Select Recurring Type'}</Text>
-                <View style={styles.optionContainer}>
-                  {recurringType?.map((i, index) => {
-                    return (
-                      <TouchableOpacity
-                        key={index.toString()}
+          {/* Reminder Time */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Reminder Time</Text>
+            <TouchableOpacity
+              style={styles.timeButton}
+              onPress={() => setShowTimePicker(true)}>
+              <Text style={styles.timeText}>
+                {moment(reminderTime).format('hh:mm A')}
+              </Text>
+            </TouchableOpacity>
+            {errors.reminderTime ? (
+              <Text style={styles.errorText}>{errors.reminderTime}</Text>
+            ) : null}
+          </View>
+
+          {/* Recurring Options */}
+          {reminderType === 'recurring' && (
+            <>
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Recurring Type</Text>
+                <View style={styles.recurringOptions}>
+                  {['daily', 'weekly', 'monthly', 'yearly'].map(type => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.recurringOption,
+                        recurringType === type && styles.recurringOptionSelected,
+                      ]}
+                      onPress={() => setRecurringType(type as any)}>
+                      <Text
                         style={[
-                          styles.option,
-                          selectedOption === i.title && styles.selectedOption,
-                          {
-                            marginHorizontal: responsiveWidth(
-                              index != 0 || index != 3 ? 0.5 : 0,
-                            ),
-                          },
+                          styles.recurringOptionText,
+                          recurringType === type &&
+                            styles.recurringOptionTextSelected,
+                        ]}>
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Monthly/Yearly Day Selection */}
+              {(recurringType === 'monthly' || recurringType === 'yearly') && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Day of Month</Text>
+                  <View style={styles.daysGrid}>
+                    {days.map(day => (
+                      <TouchableOpacity
+                        key={day.value}
+                        style={[
+                          styles.dayButton,
+                          selectedDay === day.value && styles.dayButtonSelected,
                         ]}
-                        onPress={() => setSelectedOption(i.title)}>
+                        onPress={() => setSelectedDay(day.value)}>
                         <Text
                           style={[
-                            styles.optionText,
-                            selectedOption === i.title &&
-                              styles.selectedOptionText,
+                            styles.dayButtonText,
+                            selectedDay === day.value &&
+                              styles.dayButtonTextSelected,
                           ]}>
-                          {i.title}
+                          {day.label}
                         </Text>
                       </TouchableOpacity>
-                    );
-                  })}
+                    ))}
+                  </View>
+                  {errors.day ? (
+                    <Text style={styles.errorText}>{errors.day}</Text>
+                  ) : null}
                 </View>
+              )}
 
-                {/* Day Reminder */}
-                {selectedOption === 'Weekly' && (
-                  <>
-                    <Text style={styles.inputLabel}>
-                      {'Select Day Reminder'}
-                    </Text>
-                    <View style={styles.optionContainer}>
-                      {recurringDays?.map((i, index) => {
-                        return (
-                          <TouchableOpacity
-                            key={index.toString()}
-                            style={[
-                              styles.option,
-                              selectedDay === i.title &&
-                                styles.selectedDayOption,
-                              {
-                                marginHorizontal: responsiveWidth(
-                                  index != 0 || index != 7 ? 0.5 : 0,
-                                ),
-                              },
-                            ]}
-                            onPress={() => setSelectedDay(i.title)}>
-                            <Text
-                              style={[
-                                styles.daysText,
-                                selectedDay === i.title &&
-                                  styles.selectedDaysText,
-                              ]}>
-                              {i.title?.slice(0, 3)}
-                            </Text>
-                          </TouchableOpacity>
-                        );
-                      })}
-                    </View>
-                  </>
-                )}
+              {/* Yearly Month Selection */}
+              {recurringType === 'yearly' && (
+                <View style={styles.section}>
+                  <Text style={styles.sectionTitle}>Month of Year</Text>
+                  <View style={styles.monthsGrid}>
+                    {months.map(month => (
+                      <TouchableOpacity
+                        key={month.value}
+                        style={[
+                          styles.monthButton,
+                          selectedMonth === month.value &&
+                            styles.monthButtonSelected,
+                        ]}
+                        onPress={() => setSelectedMonth(month.value)}>
+                        <Text
+                          style={[
+                            styles.monthButtonText,
+                            selectedMonth === month.value &&
+                              styles.monthButtonTextSelected,
+                          ]}>
+                          {month.label.slice(0, 3)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  {errors.month ? (
+                    <Text style={styles.errorText}>{errors.month}</Text>
+                  ) : null}
+                </View>
+              )}
 
-                {selectedOption === 'Monthly' && (
-                  <>
-                    <Text style={styles.inputLabel}>{'Repeat Every'}</Text>
-                    <View style={styles.dropdownContainer}>
-                      <DropDownPicker
-                        open={open}
-                        value={selectedMonth}
-                        items={monthList}
-                        setOpen={setOpen}
-                        setValue={setSelectedMonth}
-                        onSelectItem={data => {
-                          const list = Array.from(
-                            {length: data?.day},
-                            (_, index) => ({
-                              id: index + 1, // id will be 1-based
-                              value: String(index + 1), // value will be the string of the index + 1
-                            }),
-                          );
-                          setArrayOfDays(list);
-                        }}
-                        style={styles.dropdown}
-                        dropDownContainerStyle={styles.dropdownList}
-                        placeholder="Select Month"
-                        placeholderStyle={{color: color.gray}}
-                        listMode="SCROLLVIEW"
-                        zIndex={3000}
-                      />
-                    </View>
-
-                    {renderCalendar()}
-                  </>
-                )}
-
-                {selectedOption === 'Yearly' && (
-                  <>
-                    <Text style={styles.inputLabel}>{'Repeat Every'}</Text>
-                    <View style={styles.dropdownContainer}>
-                      <DropDownPicker
-                        open={openYear}
-                        value={selectedYear}
-                        items={yearList}
-                        setOpen={setOpenYear}
-                        setValue={setSelectedYear}
-                        onSelectItem={data => {}}
-                        style={styles.dropdown}
-                        dropDownContainerStyle={styles.dropdownList}
-                        placeholder="Select Year"
-                        placeholderStyle={{color: color.gray}}
-                        listMode="SCROLLVIEW"
-                        zIndex={3000}
-                      />
-                    </View>
-
-                    <Text style={styles.inputLabel}>
-                      {'Repeat by Month of the Year'}
-                    </Text>
-                    <View style={styles.dropdownContainer}>
-                      <DropDownPicker
-                        open={open}
-                        value={selectedMonth}
-                        items={monthListWithShortName}
-                        setOpen={setOpen}
-                        setValue={setSelectedMonth}
-                        onSelectItem={data => {
-                          const list = Array.from(
-                            {length: data?.day},
-                            (_, index) => ({
-                              id: index + 1, // id will be 1-based
-                              value: String(index + 1), // value will be the string of the index + 1
-                            }),
-                          );
-                          setArrayOfDays(list);
-                        }}
-                        style={styles.dropdown}
-                        dropDownContainerStyle={styles.dropdownList}
-                        placeholder="Select Month"
-                        placeholderStyle={{color: color.gray}}
-                        listMode="SCROLLVIEW"
-                        zIndex={3000}
-                      />
-                    </View>
-
-                    {renderCalendar()}
-                  </>
-                )}
-              </>
-            ) : null}
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>
-                {'Select Time for Reminder'}
-              </Text>
-              <View style={styles.customerInputContainer}>
-                <TextInput
-                  style={styles.customerInput}
-                  value="7:00 AM"
-                  placeholder="Select Time"
-                  placeholderTextColor="#000000"
-                />
-                <TouchableOpacity style={styles.userIcon}>
-                  <Image source={icons.icTime} style={styles.iconStyle} />
+              {/* Stopping Date */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Stopping Date</Text>
+                <TouchableOpacity
+                  style={styles.dateButton}
+                  onPress={() => setShowDatePicker(true)}>
+                  <Text style={styles.dateText}>
+                    {moment(stoppingDate).format('MMM DD, YYYY')}
+                  </Text>
                 </TouchableOpacity>
+                {errors.stoppingDate ? (
+                  <Text style={styles.errorText}>{errors.stoppingDate}</Text>
+                ) : null}
               </View>
-            </View>
+            </>
+          )}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>{'Stop Repeating Reminder'}</Text>
-              <View style={styles.customerInputContainer}>
-                <TextInput
-                  style={styles.customerInput}
-                  value="11 Jan 2025"
-                  placeholder="Select Date"
-                  placeholderTextColor="#000000"
-                />
-                <TouchableOpacity style={styles.userIcon}>
-                  <Image source={icons.icOneTime} style={styles.iconStyle} />
-                </TouchableOpacity>
-              </View>
+          {/* Add Date Picker for one-time reminder */}
+          {reminderType === 'one_Time' && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Reminder Date</Text>
+              <TouchableOpacity
+                style={styles.dateButton}
+                onPress={() => setShowDatePicker(true)}>
+                <Text style={styles.dateText}>
+                  {moment(reminderDate).format('MMM DD, YYYY')}
+                </Text>
+              </TouchableOpacity>
+              {errors.reminderDate ? (
+                <Text style={styles.errorText}>{errors.reminderDate}</Text>
+              ) : null}
             </View>
-          </ScrollView>
+          )}
         </View>
+      </ScrollView>
+
+      {/* Bottom Buttons */}
+      <View style={styles.bottomContainer}>
+        <TouchableOpacity style={styles.backButton} onPress={onPressBack}>
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+        <View style={{width: 12}} />
+        <TouchableOpacity
+          style={styles.previewButton}
+          onPress={() => {
+            if (validate()) {
+              onPressPreview();
+            }
+          }}>
+          <Text style={styles.previewButtonText}>Preview</Text>
+        </TouchableOpacity>
+        <View style={{width: 12}} />
+        <TouchableOpacity
+          style={styles.submitButton}
+          onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Next Button */}
-      <View style={styles.bottomContainer}>
-        <TouchableOpacity
-          style={[styles.nextButton, styles.backButton]}
-          onPress={() => onPressBack()}>
-          <Text style={[styles.nextButtonText, {color: color.primary}]}>
-            Back
-          </Text>
-        </TouchableOpacity>
-        <View style={{flex: 0.1}} />
-        <TouchableOpacity
-          style={styles.nextButton}
-          onPress={() => onPressPreview()}>
-          <Text style={styles.nextButtonText}>View Preview</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Time Picker */}
+      {showTimePicker && (
+        <DateTimePicker
+          value={reminderTime}
+          mode="time"
+          is24Hour={false}
+          onChange={(event, selectedTime) => {
+            setShowTimePicker(false);
+            if (selectedTime) {
+              setReminderTime(selectedTime);
+            }
+          }}
+        />
+      )}
+
+      {/* Date Picker */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={reminderType === 'one_Time' ? reminderDate : stoppingDate}
+          mode="date"
+          minimumDate={new Date()}
+          onChange={(event, selectedDate) => {
+            setShowDatePicker(false);
+            if (selectedDate) {
+              if (reminderType === 'one_Time') {
+                setReminderDate(selectedDate);
+              } else {
+                setStoppingDate(selectedDate);
+              }
+            }
+          }}
+        />
+      )}
     </View>
   );
 };
@@ -333,7 +414,7 @@ const styles = StyleSheet.create({
   formCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    marginHorizontal: responsiveWidth(4),
+    margin: responsiveWidth(4),
     padding: responsiveWidth(4),
     ...Platform.select({
       ios: {
@@ -346,211 +427,199 @@ const styles = StyleSheet.create({
         elevation: 3,
       },
     }),
-    // flex: 1,
   },
   formTitle: {
     fontSize: fontSize.regular,
     fontWeight: '600',
     marginBottom: responsiveWidth(4),
   },
-  inputGroup: {
-    marginBottom: responsiveWidth(5),
-  },
-  inputLabel: {
-    fontSize: fontSize.regularx,
-    color: color.grayText,
-    marginBottom: responsiveWidth(1),
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 10,
-    padding: responsiveWidth(4),
-    fontSize: fontSize.regularx,
-  },
-  customerInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E5E5EA',
-    borderRadius: 10,
-    paddingRight: 8,
-  },
-  customerInput: {
-    flex: 1,
-    padding: responsiveWidth(4),
-    fontSize: fontSize.regularx,
-  },
-  userIcon: {
-    marginLeft: 8,
-    padding: 4,
-  },
-  bottomContainer: {
-    // position: 'absolute',
-    // bottom: 0,
-    // left: 0,
-    // right: 0,
-    padding: responsiveWidth(4),
-    backgroundColor: color.primaryBackground,
-    flexDirection: 'row',
-  },
-  nextButton: {
-    backgroundColor: color.primary,
-    borderRadius: 12,
-    padding: responsiveWidth(4),
-    alignItems: 'center',
-    marginBottom: Platform.OS === 'ios' ? 20 : 16,
-    flex: 1,
-    borderWidth: 1,
-    borderColor: color.primary,
-  },
-  backButton: {
-    backgroundColor: color.white,
-  },
-  nextButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  iconStyle: {
-    height: responsiveWidth(6),
-    width: responsiveWidth(6),
-    resizeMode: 'contain',
-  },
-  //   Radio style
   section: {
-    paddingBottom: responsiveWidth(4),
-    // borderBottomWidth: 1,
-    flexDirection: 'row',
+    marginBottom: responsiveWidth(4),
   },
   sectionTitle: {
     fontSize: fontSize.regularx,
-    fontWeight: '500',
-    marginBottom: responsiveWidth(3.2),
+    color: color.grayText,
+    marginBottom: responsiveWidth(2),
   },
-  radioRow: {
+  radioGroup: {
+    flexDirection: 'row',
+    marginTop: responsiveWidth(2),
+  },
+  radioButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    marginRight: responsiveWidth(6),
   },
-  radioOuter: {
-    width: responsiveWidth(5.3),
-    height: responsiveWidth(5.3),
-    borderRadius: responsiveWidth(3),
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     borderWidth: 2,
-    alignItems: 'center',
     borderColor: color.primary,
+    alignItems: 'center',
     justifyContent: 'center',
-    marginRight: responsiveWidth(2),
+  },
+  radioSelected: {
+    borderColor: color.primary,
   },
   radioInner: {
-    width: responsiveWidth(3.5),
-    height: responsiveWidth(3.5),
-    borderRadius: responsiveWidth(3),
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: color.primary,
   },
-  radioText: {
-    fontSize: fontSize.mini,
-    color: color.black,
-    fontFamily: fontFamily.regular,
-  },
-  container: {
-    flexDirection: 'row',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  option: {
-    flex: 1,
-    paddingVertical: responsiveWidth(2),
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderRadius: 4,
-    borderColor: color.grayText,
-  },
-  selectedOption: {
-    // backgroundColor: '#e6f0ff',
-    borderColor: '#0056d2',
-    borderWidth: 1,
-  },
-  selectedDayOption: {
-    backgroundColor: color.primary,
-    borderColor: color.primary,
-    borderWidth: 1,
-  },
-  optionText: {
-    color: color.grayText,
-    fontSize: fontSize.regular,
-    fontFamily: fontFamily.regular,
-    fontWeight: '400',
-  },
-  daysText: {
-    color: color.grayText,
+  radioLabel: {
+    marginLeft: 8,
     fontSize: fontSize.regularx,
-    fontFamily: fontFamily.regular,
-    fontWeight: '400',
+    color: color.black,
   },
-  selectedDaysText: {
-    color: color.white,
-  },
-  selectedOptionText: {
-    color: color.primary,
-  },
-  optionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: responsiveWidth(4),
-  },
-  dropdownContainer: {
-    zIndex: 3000,
-    width: '100%',
-    marginBottom: responsiveWidth(4),
-  },
-  dropdown: {
-    borderColor: color.lightgray,
-    borderRadius: responsiveWidth(2),
-    marginTop: responsiveWidth(1),
-    height: responsiveWidth(12),
-    backgroundColor: 'transparent',
-    zIndex: 3000,
-  },
-  dropdownList: {
-    borderColor: color.lightgray,
-    backgroundColor: color.white,
-    zIndex: 2000,
-  },
-  calendarContainer: {
+  timeButton: {
     borderWidth: 1,
     borderColor: color.border,
-    padding: responsiveWidth(2),
     borderRadius: 8,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: responsiveWidth(4),
-    marginTop: responsiveWidth(1),
+    padding: responsiveWidth(4),
+    backgroundColor: color.white,
   },
-  dayContainer: {
-    width: responsiveWidth(11),
-    height: responsiveWidth(11),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: responsiveWidth(0.2),
-    borderRadius: 8,
-  },
-  selectedDateContainer: {
-    backgroundColor: color.primary,
-  },
-  dayTextContainer: {
-    fontSize: fontSize.regular,
-    fontFamily: fontFamily.regular,
+  timeText: {
+    fontSize: fontSize.regularx,
     color: color.black,
   },
-  selectedTextDateContainer: {
+  dateButton: {
+    borderWidth: 1,
+    borderColor: color.border,
+    borderRadius: 8,
+    padding: responsiveWidth(4),
+    backgroundColor: color.white,
+  },
+  dateText: {
+    fontSize: fontSize.regularx,
+    color: color.black,
+  },
+  recurringOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: responsiveWidth(2),
+  },
+  recurringOption: {
+    borderWidth: 1,
+    borderColor: color.border,
+    borderRadius: 8,
+    paddingVertical: responsiveWidth(2),
+    paddingHorizontal: responsiveWidth(4),
+    marginRight: responsiveWidth(2),
+    marginBottom: responsiveWidth(2),
+  },
+  recurringOptionSelected: {
+    backgroundColor: color.primary,
+    borderColor: color.primary,
+  },
+  recurringOptionText: {
+    fontSize: fontSize.regularx,
+    color: color.black,
+  },
+  recurringOptionTextSelected: {
     color: color.white,
+  },
+  daysGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: responsiveWidth(2),
+  },
+  dayButton: {
+    width: responsiveWidth(12),
+    height: responsiveWidth(12),
+    borderWidth: 1,
+    borderColor: color.border,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: responsiveWidth(2),
+    marginBottom: responsiveWidth(2),
+  },
+  dayButtonSelected: {
+    backgroundColor: color.primary,
+    borderColor: color.primary,
+  },
+  dayButtonText: {
+    fontSize: fontSize.regularx,
+    color: color.black,
+  },
+  dayButtonTextSelected: {
+    color: color.white,
+  },
+  monthsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: responsiveWidth(2),
+  },
+  monthButton: {
+    paddingVertical: responsiveWidth(2),
+    paddingHorizontal: responsiveWidth(4),
+    borderWidth: 1,
+    borderColor: color.border,
+    borderRadius: 8,
+    marginRight: responsiveWidth(2),
+    marginBottom: responsiveWidth(2),
+  },
+  monthButtonSelected: {
+    backgroundColor: color.primary,
+    borderColor: color.primary,
+  },
+  monthButtonText: {
+    fontSize: fontSize.regularx,
+    color: color.black,
+  },
+  monthButtonTextSelected: {
+    color: color.white,
+  },
+  bottomContainer: {
+    flexDirection: 'row',
+    padding: responsiveWidth(4),
+    backgroundColor: color.white,
+    borderTopWidth: 1,
+    borderTopColor: color.border,
+  },
+  backButton: {
+    flex: 1,
+    backgroundColor: color.white,
+    borderWidth: 1,
+    borderColor: color.primary,
+    borderRadius: 8,
+    padding: responsiveWidth(4),
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: color.primary,
+    fontSize: fontSize.regularx,
+    fontWeight: '600',
+  },
+  previewButton: {
+    flex: 1,
+    backgroundColor: color.white,
+    borderRadius: 8,
+    padding: responsiveWidth(4),
+    alignItems: 'center',
+  },
+  previewButtonText: {
+    color: color.primary,
+    fontSize: fontSize.regularx,
+    fontWeight: '600',
+  },
+  submitButton: {
+    flex: 1,
+    backgroundColor: color.primary,
+    borderRadius: 8,
+    padding: responsiveWidth(4),
+    alignItems: 'center',
+  },
+  submitButtonText: {
+    color: color.white,
+    fontSize: fontSize.regularx,
+    fontWeight: '600',
+  },
+  errorText: {
+    color: '#FF3B30',
+    fontSize: fontSize.small,
+    marginTop: 4,
   },
 });

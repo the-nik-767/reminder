@@ -18,59 +18,103 @@ import {
 } from '../../../constant/theme';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {icons} from '../../../assets';
-import {templetDetails} from '../../../constant/global';
 
-const TempletDetails = ({onPressBack, onPressSave}) => {
+interface Template {
+  id: number;
+  name: string;
+  content: string;
+  variables: Array<{name: string}>;
+}
+
+interface TempletDetailsProps {
+  template: Template;
+  variables: Array<{name: string; value: string}>;
+  onUpdateVariables: (variables: Array<{name: string; value: string}>) => void;
+  onPressBack: () => void;
+  onPressSave: () => void;
+}
+
+const TempletDetails: React.FC<TempletDetailsProps> = ({
+  template,
+  variables,
+  onUpdateVariables,
+  onPressBack,
+  onPressSave,
+}) => {
+  const handleVariableChange = (name: string, value: string) => {
+    const newVariables = variables.map(v =>
+      v.name === name ? {...v, value} : v,
+    );
+    onUpdateVariables(newVariables);
+  };
+
+  const getPreviewContent = () => {
+    let content = template.content;
+    variables.forEach(v => {
+      content = content.replace(
+        new RegExp(`\\{${v.name}\\}`, 'g'),
+        v.value || `{${v.name}}`,
+      );
+    });
+    return content;
+  };
+
   return (
     <View style={{flex: 1}}>
-      {/* Form Container */}
       <View style={{flex: 1}}>
         <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
           <View style={styles.formCard}>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <Text style={styles.formTitle}>{'Selected templet'}</Text>
-              <Image source={icons.icCloseThin} style={styles.closeIconStyle} />
+            <View style={styles.headerContainer}>
+              <Text style={styles.formTitle}>Template Preview</Text>
+              <TouchableOpacity onPress={onPressBack}>
+                <Icon name="close" size={24} color={color.primary} />
+              </TouchableOpacity>
             </View>
 
             <View style={styles.cardContainer}>
               <View style={styles.cardSubContainer}>
-                <Text>{templetDetails?.message}</Text>
+                <Text style={styles.previewText}>{getPreviewContent()}</Text>
               </View>
             </View>
 
-            <Text style={styles.cardTitle}>
-              {templetDetails?.templateDisaplyName}
-            </Text>
+            <Text style={styles.cardTitle}>{template.name}</Text>
           </View>
 
-          <View style={{paddingHorizontal: responsiveWidth(4)}}>
-            {templetDetails?.variables?.map((i, index) => {
-              return (
-                <View key={index.toString()}>
-                  <Text style={styles.inputTitle}>{i.displayName}</Text>
-                  <TextInput style={styles.inputStyle} />
-                </View>
-              );
-            })}
+          <View style={styles.variablesContainer}>
+            {variables.map((variable, index) => (
+              <View key={variable.name} style={styles.variableGroup}>
+                <Text style={styles.inputTitle}>{variable.name}</Text>
+                <TextInput
+                  style={[
+                    styles.inputStyle,
+                    !variable.value.trim() && styles.inputError,
+                  ]}
+                  value={variable.value}
+                  onChangeText={text => handleVariableChange(variable.name, text)}
+                  placeholder={`Enter ${variable.name}`}
+                  placeholderTextColor={color.grayText}
+                />
+              </View>
+            ))}
           </View>
         </ScrollView>
       </View>
 
-      {/* Next Button */}
       <View style={styles.bottomContainer}>
         <TouchableOpacity
-          style={styles.nextButton}
-          onPress={() => onPressBack()}>
-          <Text style={styles.nextButtonText}>Cancel</Text>
+          style={styles.cancelButton}
+          onPress={onPressBack}>
+          <Text style={styles.cancelButtonText}>Cancel</Text>
         </TouchableOpacity>
-        <View style={{flex: 0.1}} />
+        <View style={{width: responsiveWidth(4)}} />
         <TouchableOpacity
-          style={[styles.nextButton, {backgroundColor: color.primary}]}
-          onPress={() => onPressSave()}>
-          <Text style={[styles.nextButtonText, {color: color.white}]}>
-            {'Save & Next'}
-          </Text>
+          style={[
+            styles.saveButton,
+            variables.some(v => !v.value.trim()) && styles.buttonDisabled,
+          ]}
+          onPress={onPressSave}
+          disabled={variables.some(v => !v.value.trim())}>
+          <Text style={styles.saveButtonText}>Save & Next</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -98,24 +142,72 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: responsiveWidth(4),
+  },
   formTitle: {
     fontSize: fontSize.regular,
     fontWeight: '600',
-    marginBottom: responsiveWidth(0),
   },
   cardTitle: {
     fontSize: fontSize.regularx,
     fontFamily: fontFamily.regular,
-    marginBottom: responsiveWidth(0),
     color: color.grayText,
+    marginTop: responsiveWidth(2),
   },
-
+  cardContainer: {
+    backgroundColor: '#e2ded7',
+    paddingHorizontal: responsiveWidth(6),
+    paddingTop: responsiveWidth(4),
+    paddingBottom: responsiveWidth(6),
+  },
+  cardSubContainer: {
+    borderRadius: 8,
+    backgroundColor: color.white,
+    padding: responsiveWidth(4),
+    minHeight: responsiveHeight(20),
+  },
+  previewText: {
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
+    color: color.black,
+    lineHeight: fontSize.regularx * 1.5,
+  },
+  variablesContainer: {
+    paddingHorizontal: responsiveWidth(4),
+    marginBottom: responsiveWidth(4),
+  },
+  variableGroup: {
+    marginBottom: responsiveWidth(4),
+  },
+  inputTitle: {
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
+    color: color.grayText,
+    marginBottom: responsiveWidth(2),
+  },
+  inputStyle: {
+    borderWidth: 1,
+    borderColor: color.border,
+    backgroundColor: color.white,
+    borderRadius: 8,
+    paddingHorizontal: responsiveWidth(4),
+    paddingVertical: Platform.OS === 'ios' ? responsiveWidth(3) : responsiveWidth(2),
+    fontSize: fontSize.regularx,
+  },
+  inputError: {
+    borderColor: '#FF3B30',
+  },
   bottomContainer: {
     padding: responsiveWidth(4),
     backgroundColor: color.primaryBackground,
     flexDirection: 'row',
   },
-  nextButton: {
+  cancelButton: {
+    flex: 1,
     backgroundColor: color.white,
     borderRadius: 12,
     padding: responsiveWidth(4),
@@ -123,51 +215,28 @@ const styles = StyleSheet.create({
     marginBottom: Platform.OS === 'ios' ? 20 : 16,
     borderWidth: 1,
     borderColor: color.primary,
-    flex: 1,
   },
-  nextButtonText: {
+  cancelButtonText: {
     color: color.primary,
     fontSize: fontSize.regular,
     fontWeight: '600',
     fontFamily: fontFamily.regular,
   },
-
-  cardContainer: {
-    backgroundColor: '#e2ded7',
-    paddingHorizontal: responsiveWidth(6),
-    paddingTop: responsiveWidth(4),
-    paddingBottom: responsiveWidth(6),
-    marginBottom: responsiveWidth(3),
+  saveButton: {
+    flex: 1,
+    backgroundColor: color.primary,
+    borderRadius: 12,
+    padding: responsiveWidth(4),
+    alignItems: 'center',
+    marginBottom: Platform.OS === 'ios' ? 20 : 16,
   },
-  cardSubContainer: {
-    borderRadius: 8,
-    backgroundColor: color.white,
-    paddingHorizontal: responsiveWidth(2),
-    paddingTop: responsiveWidth(3),
-    paddingBottom: responsiveWidth(4),
-    minHeight: responsiveHeight(30),
-  },
-
-  closeIconStyle: {
-    height: responsiveWidth(7),
-    width: responsiveWidth(7),
-    resizeMode: 'contain',
-    tintColor: color.primary,
-  },
-  inputTitle: {
-    fontSize: fontSize.xsmall,
+  saveButtonText: {
+    color: color.white,
+    fontSize: fontSize.regular,
+    fontWeight: '600',
     fontFamily: fontFamily.regular,
-    color: color.grayText,
   },
-  inputStyle: {
-    borderWidth: 1,
-    borderColor: color.border,
-    marginBottom: responsiveWidth(3),
-    marginTop: responsiveWidth(1.5),
-    backgroundColor: color.white,
-    borderRadius: 6,
-    paddingHorizontal: responsiveWidth(2),
-    paddingVertical: responsiveWidth(2),
-    fontSize: fontSize.regularx,
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });

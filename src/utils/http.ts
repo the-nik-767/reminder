@@ -18,20 +18,22 @@ export enum HttpStatusCode {
   NETWORK_CONNECT_TIMEOUT = 599,
 }
 
-// Create Axios instance with default headers
+// Base URL ko environment ke according set karein
+const baseURL = __DEV__ 
+  ? Platform.select({
+      android: 'http://10.0.2.2:3000/api/v1',  // Android Emulator
+      ios: 'http://localhost:3000/api/v1',      // iOS Simulator
+    })
+  : 'YOUR_PRODUCTION_API_URL';
 
+// Create Axios instance with default headers
 const http = axios.create({
-  // Platform specific baseURL
-  baseURL: Platform.select({
-    android: 'https://vlkrmvfn-3000.inc1.devtunnels.ms/api/v1', // Android Emulator
-    ios: 'https://vlkrmvfn-3000.inc1.devtunnels.ms/api/v1', // iOS Simulator
-    // Add your production URL when deploying
-  }),
+  baseURL,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
-    Accept: 'application/json',
+    Accept: 'application/json'
   },
-  timeout: 10000, // 10 seconds timeout
 });
 
 // Function to get token and set it in headers

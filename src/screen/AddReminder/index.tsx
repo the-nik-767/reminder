@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   ScrollView,
   Platform,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {color, fontSize, responsiveWidth} from '../../constant/theme';
@@ -17,44 +18,196 @@ import BasicInfo from './steps/basicInfo';
 import ScheduleInfo from './steps/schedule';
 import SelectTemplet from './steps/selectTemplet';
 import PreviewReminder from './steps/previewReminder';
+import http from '../../utils/http';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface ReminderFormData {
+  reminder_name: string;
+  customer_id: number | null;
+  template_id: number | null;
+  variables: Array<{name: string; value: string}>;
+  reminder_type: 'one_Time' | 'recurring';
+  reminder_date?: string;
+  reminder_time: string;
+  recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  stopping_date?: string;
+  day_of_month?: number;
+  month_of_year?: number;
+}
+
+interface ScheduleInfoProps {
+  reminder_type: 'one_Time' | 'recurring';
+  reminder_date?: string;
+  reminder_time: string;
+  stopping_date?: string;
+  day_of_month?: number;
+  month_of_year?: number;
+  recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+}
 
 const AddReminder = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPreview, setShowPreview] = useState(false);
+  const [formData, setFormData] = useState<ReminderFormData>({
+    reminder_name: '',
+    customer_id: null,
+    template_id: null,
+    variables: [],
+    reminder_type: 'one_Time',
+    reminder_time: '',
+  });
+  const [scheduleData, setScheduleData] = useState<any>(null);
+
+  const handleBasicInfoSubmit = (data: { reminder_name: string; customer_id: number }) => {
+    setFormData(prev => ({
+      ...prev,
+      reminder_name: data.reminder_name,
+      customer_id: data.customer_id,
+    }));
+    setCurrentStep(2);
+  };
+
+  const handleTemplateSelect = (templateId: number, variables: Array<{name: string; value: string}>) => {
+    setFormData(prev => ({
+      ...prev,
+      template_id: templateId,
+      variables: variables,
+    }));
+    setCurrentStep(3);
+  };
+
+  const handleScheduleSubmit = (scheduleData: {
+    reminder_type: 'one_Time' | 'recurring';
+    reminder_date?: string;
+    reminder_time: string;
+    stopping_date?: string;
+    day_of_month?: number;
+    month_of_year?: number;
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      ...scheduleData
+    }));
+    setShowPreview(true);
+  };
+
+  const handleFinalSubmit = async () => {
+    if (!formData.customer_id || !formData.template_id || !formData.reminder_time) {
+      Alert.alert('Error', 'Please fill all required fields');
+      return;
+    }
+
+    try {
+      const token = await AsyncStorage.getItem('USER_TOKEN');
+      
+      if (!token) {
+        Alert.alert('Error', 'You are not logged in. Please login again.');
+        return;
+      }
+
+      const response = await http.post('/reminder/add-reminder', {
+        reminder_name: formData.reminder_name,
+        customer_id: formData.customer_id,
+        template_id: formData.template_id,
+        variables: formData.variables,
+        reminder_type: formData.reminder_type,
+        reminder_date: formData.reminder_date,
+        reminder_time: formData.reminder_time,
+        ...(formData.reminder_type === 'recurring' && {
+          recurring_type: formData.recurring_type,
+          stopping_date: formData.stopping_date,
+          day_of_month: formData.day_of_month,
+          month_of_year: formData.month_of_year,
+        }),
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      Alert.alert('Success', 'Reminder created successfully!');
+      // Reset form and navigate back
+      setFormData({
+        reminder_name: '',
+        customer_id: null,
+        template_id: null,
+        variables: [],
+        reminder_type: 'one_Time',
+        reminder_time: '',
+      });
+      setCurrentStep(1);
+    } catch (error: any) {
+      console.error('Error creating reminder:', error.response?.data || error.message);
+      
+      if (error.response?.status === 401) {
+        Alert.alert('Error', 'Your session has expired. Please login again.');
+        return;
+      }
+      
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to create reminder. Please try again.'
+      );
+    }
+    setShowPreview(false);
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Header title="Add Reminder" showBack />
+      <Header 
+        title="Add Reminder" 
+        showBack={true} 
+        rightIcon={null}
+        rightIconContainerStyle={undefined}
+        rightIconStyle={undefined}
+        onPress={undefined}
+      />
 
       {/* Progress Steps */}
       <StepCounter currentStep={currentStep} />
 
       {/* step 1 Container */}
-      {currentStep == 1 && <BasicInfo onPressNext={() => setCurrentStep(2)} />}
+      {currentStep == 1 && (
+        <BasicInfo 
+          onPressNext={handleBasicInfoSubmit}
+          initialData={{
+            reminder_name: formData.reminder_name,
+            customer_id: formData.customer_id,
+          }}
+        />
+      )}
 
       {/* Select Templet */}
       {currentStep == 2 && (
         <SelectTemplet
           onPressBack={() => setCurrentStep(1)}
-          onPressSave={() => setCurrentStep(3)}
+          onPressSave={handleTemplateSelect}
+          selectedTemplateId={formData.template_id}
         />
       )}
 
       {/* step 3 Container */}
       {currentStep == 3 && (
         <ScheduleInfo
-          onPressBack={() => {
-            setCurrentStep(2);
-          }}
-          onPressPreview={() => {
-            setShowPreview(true);
-          }}
+          onPressBack={() => setCurrentStep(2)}
+          onPressPreview={() => setShowPreview(true)}
+          onSubmit={handleScheduleSubmit}
+          initialData={{
+            reminder_type: formData.reminder_type,
+            reminder_date: formData.reminder_date,
+            reminder_time: formData.reminder_time,
+            stopping_date: formData.stopping_date,
+            day_of_month: formData.day_of_month,
+            month_of_year: formData.month_of_year,
+            recurring_type: formData.recurring_type,
+          } as ScheduleInfoProps}
         />
       )}
       <PreviewReminder
-        onPressConfirm={() => {
-          setShowPreview(false);
-        }}
+        data={{...formData, ...scheduleData}}
+        onPressConfirm={handleFinalSubmit}
         onPressClose={() => {
           setShowPreview(false);
         }}

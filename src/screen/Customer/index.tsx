@@ -19,7 +19,7 @@ import {
   responsiveWidth,
 } from '../../constant/theme';
 import {icons} from '../../assets';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {customerService, Customer} from '../../services/customer/customer.service';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
@@ -81,9 +81,11 @@ const CustomerScreen = () => {
   const [customers, setCustomers] = useState<CustomerData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCustomers();
+    }, [])
+  );
 
   const fetchCustomers = async () => {
     try {
@@ -154,7 +156,7 @@ const CustomerScreen = () => {
     <TouchableOpacity
       style={[
         styles.alphabetItem,
-        selectedLetter === item && styles.selectedAlphabetItem,
+        // selectedLetter === item && styles.selectedAlphabetItem,
       ]}
       onPress={() => {
         setSelectedLetter(selectedLetter === item ? '' : item);

@@ -85,7 +85,9 @@ const PreviewReminder = ({onPressConfirm, onPressClose, visible}: any) => {
           {/* Button */}
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => onPressConfirm()}>
+            onPress={() => {
+              console.log('onPressConfirm');
+              onPressConfirm()}}>
             <Text style={styles.nextButtonText}>{'confirmed schedule'}</Text>
           </TouchableOpacity>
         </View>

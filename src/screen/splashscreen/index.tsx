@@ -27,10 +27,11 @@ const SplashScreen = () => {
       try {
         const token = await AsyncStorage.getItem('USER_TOKEN');
 
+        
         if (token) {
           navigation.dispatch(StackActions.replace('HomeScreen'));
         } else {
-          navigation.dispatch(StackActions.replace('HomeScreen'));
+          navigation.dispatch(StackActions.replace('Login'));
         }
       } catch (error) {
         console.error('Error checking auth:', error);

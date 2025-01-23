@@ -6,10 +6,15 @@ import i18next from 'i18next';
 export default class UserService extends Service {
   async login(phone: string, password: string) {
     try {
+     
       const axiosResponse = await http.post('/user/login', {
         phone,
         password,
       });
+
+       console.log('====================================');
+       console.log('axiosResponse==>', axiosResponse.data.response);
+       console.log('====================================');
 
       if (axiosResponse?.data?.status && axiosResponse?.data?.response) {
         // Store complete user data
@@ -74,11 +79,11 @@ export default class UserService extends Service {
       console.log('Making register request with data:', apiData);
 
       const axiosResponse = await http.post('user/register', apiData);
-      console.log('Register response:', axiosResponse.data.response.id);
+      console.log('Register response:', axiosResponse.data);
 
       return axiosResponse.data.response;
     } catch (error: any) {
-      console.error('Register error:', error.response?.data);
+      console.error('Register error:', error);
       throw error;
     }
   }
@@ -148,4 +153,14 @@ export default class UserService extends Service {
       throw error;
     }
   }
+
+  async getAllCustomers() {
+    try {
+      const response = await http.get('/api/v1/customer/get-all-customer');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
+
