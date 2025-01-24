@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Keyboard,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -88,13 +89,19 @@ const ProfileScreen = () => {
     );
   };
 
-  const SectionCard = ({source, title, value, iconStyle, showArrow, onPress}: any) => {
+  const SectionCard = ({
+    source,
+    title,
+    value,
+    iconStyle,
+    showArrow,
+    onPress,
+  }: any) => {
     return (
-      <TouchableOpacity 
-        style={styles.infoCard} 
+      <TouchableOpacity
+        style={styles.infoCard}
         onPress={onPress}
-        disabled={!onPress}
-      >
+        disabled={!onPress}>
         <View style={styles.sectinCard}>
           <Image
             source={source}
@@ -233,6 +240,9 @@ const ProfileScreen = () => {
               value={'English'}
               items={businessCategories}
               setOpen={setOpen}
+              onOpen={() => {
+                Keyboard.dismiss();
+              }}
               setValue={callback => {}}
               style={styles.dropdown}
               dropDownContainerStyle={styles.dropdownList}
@@ -255,9 +265,9 @@ const ProfileScreen = () => {
           title={'Privacy policy'}
           showArrow
         />
-        <SectionCard 
-          source={icons.icLogout} 
-          title={'Logout'} 
+        <SectionCard
+          source={icons.icLogout}
+          title={'Logout'}
           onPress={handleLogout}
         />
       </ScrollView>

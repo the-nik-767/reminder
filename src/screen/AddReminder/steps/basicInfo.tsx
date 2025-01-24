@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  Keyboard,
 } from 'react-native';
 import React, {useState, useEffect, useCallback} from 'react';
 import {color, fontSize, responsiveWidth} from '../../../constant/theme';
 import Icon from 'react-native-vector-icons/Ionicons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { customerService } from '../../../services/customer/customer.service';
-import { useFocusEffect } from '@react-navigation/native';
+import {customerService} from '../../../services/customer/customer.service';
+import {useFocusEffect} from '@react-navigation/native';
 
 interface Customer {
   id: number;
@@ -20,7 +21,7 @@ interface Customer {
 }
 
 interface BasicInfoProps {
-  onPressNext: (data: { reminder_name: string; customer_id: number }) => void;
+  onPressNext: (data: {reminder_name: string; customer_id: number}) => void;
   initialData?: {
     reminder_name: string;
     customer_id: number | null;
@@ -29,13 +30,22 @@ interface BasicInfoProps {
 
 const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
-  const [reminderName, setReminderName] = useState(initialData?.reminder_name || '');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
+  const [reminderName, setReminderName] = useState(
+    initialData?.reminder_name || '',
+  );
   const [open, setOpen] = useState(false);
   const [errors, setErrors] = useState({
     reminderName: '',
     customer: '',
   });
+
+  const handleOpen = () => {
+    Keyboard.dismiss(); // Dismiss keyboard when dropdown opens
+    setOpen(true);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -47,10 +57,12 @@ const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
     try {
       const data = await customerService.getAllCustomers();
       setCustomers(data as unknown as Customer[]);
-      
+
       // If we have an initial customer_id, find and set the customer
       if (initialData?.customer_id) {
-        const customer = data.find(c => Number(c.id) === initialData.customer_id);
+        const customer = data.find(
+          c => Number(c.id) === initialData.customer_id,
+        );
         if (customer) {
           setSelectedCustomer(customer as unknown as Customer);
         }
@@ -100,7 +112,10 @@ const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
         <View style={styles.inputGroup}>
           <Text style={styles.inputLabel}>Reminder Name</Text>
           <TextInput
-            style={[styles.input, errors.reminderName ? styles.inputError : null]}
+            style={[
+              styles.input,
+              errors.reminderName ? styles.inputError : null,
+            ]}
             placeholder="Customer Birthday"
             placeholderTextColor="#999999"
             value={reminderName}
@@ -127,6 +142,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
                 value: customer.id,
               }))}
               setOpen={setOpen}
+              onOpen={() => {
+                Keyboard.dismiss();
+              }}
               setValue={callback => {
                 const value = callback(selectedCustomer?.id || null);
                 const customer = customers.find(c => c.id === value);
@@ -135,7 +153,10 @@ const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
                   setErrors(prev => ({...prev, customer: ''}));
                 }
               }}
-              style={[styles.dropdown, errors.customer ? styles.inputError : null]}
+              style={[
+                styles.dropdown,
+                errors.customer ? styles.inputError : null,
+              ]}
               dropDownContainerStyle={styles.dropdownList}
               placeholder="Select Customer"
               placeholderStyle={{color: color.gray}}
@@ -154,7 +175,8 @@ const BasicInfo: React.FC<BasicInfoProps> = ({onPressNext, initialData}) => {
         <TouchableOpacity
           style={[
             styles.nextButton,
-            (!reminderName.trim() || !selectedCustomer) && styles.nextButtonDisabled,
+            (!reminderName.trim() || !selectedCustomer) &&
+              styles.nextButtonDisabled,
           ]}
           onPress={handleNext}>
           <Text style={styles.nextButtonText}>Next</Text>
