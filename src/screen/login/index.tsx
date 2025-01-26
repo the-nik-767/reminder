@@ -67,7 +67,7 @@ const Login = () => {
       try {
         const data = await userService.login(values.phone, values.password);
         console.log('Login data:', data);
-        if (data.success && data.token) {
+        if (data && data.token) {
           Toast.show({
             type: 'success',
             text1: 'Login Successful',

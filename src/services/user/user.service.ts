@@ -162,5 +162,19 @@ export default class UserService extends Service {
       throw error;
     }
   }
+
+  async getBusinessCategories() {
+    try {
+      const token = await AsyncStorage.getItem('USER_TOKEN');
+      const response = await http.get('/business-category/get-all-category');
+      console.log('====================================');
+      console.log('response==>', response.data.response);
+      console.log('====================================');
+      return response.data.response;
+    } catch (error) {
+      console.error('Get business categories error:', error);
+      throw error;
+    }
+  }
 }
 

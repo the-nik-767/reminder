@@ -1,5 +1,6 @@
 import axios from "axios";
 import { Platform } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Enum for HTTP Status Codes
 export enum HttpStatusCode {
@@ -18,47 +19,56 @@ export enum HttpStatusCode {
   NETWORK_CONNECT_TIMEOUT = 599,
 }
 
-// Base URL ko environment ke according set karein
-const baseURL = __DEV__ 
+const baseURL = __DEV__
   ? Platform.select({
-      android: 'http://10.0.2.2:3000/api/v1',  // Android Emulator
-      ios: 'http://localhost:3000/api/v1',      // iOS Simulator
+      android: 'https://reminder-backend-dev.prestious.com/api/v1',
+      ios: 'https://reminder-backend-dev.prestious.com/api/v1',
+      default: 'https://reminder-backend-dev.prestious.com/api/v1'
     })
-  : 'YOUR_PRODUCTION_API_URL';
+  : 'https://reminder-backend.prestious.com/api/v1'; // Production URL
 
 // Create Axios instance with default headers
 const http = axios.create({
   baseURL,
-  timeout: 10000,
+  timeout: 30000, // Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
-    Accept: 'application/json'
+    'Accept': 'application/json',
   },
 });
 
-// Function to get token and set it in headers
-// async function setAuthHeader() {
-//   let token: string | null = null;
+// Request interceptor for adding auth token
+http.interceptors.request.use(
+  async (config) => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('USER_DATA');
+      const data = jsonValue != null ? JSON.parse(jsonValue) : null;
+      const token = data?.token;
 
-//   const jsonValue = await AsyncStorage.getItem('USER_DATA');
-//   const data = jsonValue != null ? JSON.parse(jsonValue) : null;
+      if (token) {
+        config.headers.token = token;
+      }
+    } catch (error) {
+      console.error('Error setting auth token:', error);
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-//   token = data?.token || null;
-
-//   if (token) {
-//     http.defaults.headers.common['token'] = `${token}`;
-//     console.log('Token set in headers:', token);
-//   } else {
-//     delete http.defaults.headers.common['token'];
-//     console.log('Token removed from headers');
-//   }
-// }
-
-// Ensure setAuthHeader completes before making requests
-// async function initialize() {
-//   await setAuthHeader();
-// }
-
-// initialize();
+// Response interceptor for handling errors
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === HttpStatusCode.UNAUTHORIZED) {
+      // Handle unauthorized error (e.g., clear storage and redirect to login)
+      await AsyncStorage.clear();
+      // You might want to add navigation logic here
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default http;

@@ -84,6 +84,11 @@ const AddReminder = () => {
     day_of_month?: number;
     month_of_year?: number;
   }) => {
+
+    console.log('====================================');
+    console.log('scheduleData==>', scheduleData);
+    console.log('====================================');
+
     setFormData(prev => ({
       ...prev,
       ...scheduleData
@@ -125,6 +130,10 @@ const AddReminder = () => {
           'Content-Type': 'application/json'
         }
       });
+
+      console.log('====================================');
+      console.log('response==>', response);
+      console.log('====================================');
 
       Alert.alert('Success', 'Reminder created successfully!');
       // Reset form and navigate back

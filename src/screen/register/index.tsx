@@ -44,23 +44,48 @@ type NavigationType = NavigationProp<RootStackParamList> & {
 
 // Validation schema for formik
 
+type BusinessCategory = {
+  label: string;
+  value: string;
+};
+
 const Register = () => {
   const navigation = useNavigation<NavigationType>();
   const [showPassword, setShowPassword] = useState(false);
   const userService = serviceFactory.get<UserService>('UserService');
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [open, setOpen] = useState(false);
-  const [businessCategories] = useState([
-    {label: 'Select Business Category', value: ''},
-    {label: 'Retail', value: 'retail'},
-    {label: 'Restaurant', value: 'restaurant'},
-    {label: 'Technology', value: 'technology'},
-    {label: 'Healthcare', value: 'healthcare'},
-    {label: 'Education', value: 'education'},
-  ]);
+  const [businessCategories, setBusinessCategories] = useState<BusinessCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollViewRef = React.useRef<ScrollView>(null);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const fetchBusinessCategories = async () => {
+      try {
+        const response = await userService.getBusinessCategories();
+        if (response) {
+          const formattedCategories = response.categories.map(
+            (category: any) => {
+              console.log('====================================');
+              console.log('category==>', category);
+              console.log('====================================');
+              return {
+                label: category.name,
+                value: category.id.toString(),
+              };
+            },
+          );
+          setBusinessCategories(formattedCategories);
+        }
+      } catch (error) {
+        console.error('Failed to fetch business categories:', error);
+        Alert.alert('Error', 'Failed to load business categories');
+      }
+    };
+
+    fetchBusinessCategories();
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -284,6 +309,11 @@ const Register = () => {
                 setValue={callback => {
                   const value = callback(formik.values.businessCategory);
                   formik.setFieldValue('businessCategory', value);
+                  // Also update the business_category_id
+                  const selectedCategory = businessCategories.find(cat => cat.value === value);
+                  if (selectedCategory) {
+                    formik.setFieldValue('business_category_id', parseInt(selectedCategory.value));
+                  }
                 }}
                 style={styles.dropdown}
                 dropDownContainerStyle={styles.dropdownList}
