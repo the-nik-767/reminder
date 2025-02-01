@@ -20,6 +20,7 @@ import SelectTemplet from './steps/selectTemplet';
 import PreviewReminder from './steps/previewReminder';
 import http from '../../utils/http';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useNavigation} from '@react-navigation/native';
 
 interface ReminderFormData {
   reminder_name: string;
@@ -31,6 +32,7 @@ interface ReminderFormData {
   reminder_time: string;
   recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
   stopping_date?: string;
+  day_of_week?: string;
   day_of_month?: number;
   month_of_year?: number;
 }
@@ -46,6 +48,7 @@ interface ScheduleInfoProps {
 }
 
 const AddReminder = () => {
+  const navigation = useNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState<ReminderFormData>({
@@ -56,7 +59,6 @@ const AddReminder = () => {
     reminder_type: 'one_Time',
     reminder_time: '',
   });
-  const [scheduleData, setScheduleData] = useState<any>(null);
 
   const handleBasicInfoSubmit = (data: { reminder_name: string; customer_id: number }) => {
     setFormData(prev => ({
@@ -80,15 +82,12 @@ const AddReminder = () => {
     reminder_type: 'one_Time' | 'recurring';
     reminder_date?: string;
     reminder_time: string;
+    recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
     stopping_date?: string;
+    day_of_week?: string;
     day_of_month?: number;
     month_of_year?: number;
   }) => {
-
-    console.log('====================================');
-    console.log('scheduleData==>', scheduleData);
-    console.log('====================================');
-
     setFormData(prev => ({
       ...prev,
       ...scheduleData
@@ -110,42 +109,21 @@ const AddReminder = () => {
         return;
       }
 
-      const response = await http.post('/reminder/add-reminder', {
-        reminder_name: formData.reminder_name,
-        customer_id: formData.customer_id,
-        template_id: formData.template_id,
-        variables: formData.variables,
-        reminder_type: formData.reminder_type,
-        reminder_date: formData.reminder_date,
-        reminder_time: formData.reminder_time,
-        ...(formData.reminder_type === 'recurring' && {
-          recurring_type: formData.recurring_type,
-          stopping_date: formData.stopping_date,
-          day_of_month: formData.day_of_month,
-          month_of_year: formData.month_of_year,
-        }),
-      }, {
+      const response = await http.post('/reminder/add-reminder', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('====================================');
-      console.log('response==>', response);
-      console.log('====================================');
-
-      Alert.alert('Success', 'Reminder created successfully!');
-      // Reset form and navigate back
-      setFormData({
-        reminder_name: '',
-        customer_id: null,
-        template_id: null,
-        variables: [],
-        reminder_type: 'one_Time',
-        reminder_time: '',
-      });
-      setCurrentStep(1);
+      Alert.alert('Success', 'Reminder created successfully!', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.goBack();
+          }
+        }
+      ]);
     } catch (error: any) {
       console.error('Error creating reminder:', error.response?.data || error.message);
       
@@ -201,25 +179,22 @@ const AddReminder = () => {
       {currentStep == 3 && (
         <ScheduleInfo
           onPressBack={() => setCurrentStep(2)}
-          onPressPreview={() => setShowPreview(true)}
           onSubmit={handleScheduleSubmit}
           initialData={{
             reminder_type: formData.reminder_type,
             reminder_date: formData.reminder_date,
             reminder_time: formData.reminder_time,
+            recurring_type: formData.recurring_type,
             stopping_date: formData.stopping_date,
             day_of_month: formData.day_of_month,
             month_of_year: formData.month_of_year,
-            recurring_type: formData.recurring_type,
-          } as ScheduleInfoProps}
+          }}
         />
       )}
       <PreviewReminder
-        data={{...formData, ...scheduleData}}
+        data={formData}
         onPressConfirm={handleFinalSubmit}
-        onPressClose={() => {
-          setShowPreview(false);
-        }}
+        onPressClose={() => setShowPreview(false)}
         visible={showPreview}
       />
     </View>

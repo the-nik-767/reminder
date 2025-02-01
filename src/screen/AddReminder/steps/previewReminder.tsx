@@ -17,10 +17,35 @@ import {
   responsiveWidth,
 } from '../../../constant/theme';
 import {icons} from '../../../assets';
-import {templetDetails} from '../../../constant/global';
+import moment from 'moment';
 
-const PreviewReminder = ({onPressConfirm, onPressClose, visible}: any) => {
-  const DetailsConainer = ({title, value}: any) => {
+interface PreviewReminderProps {
+  data: {
+    reminder_name: string;
+    customer_id: number | null;
+    template_id: number | null;
+    variables: Array<{name: string; value: string}>;
+    reminder_type: 'one_Time' | 'recurring';
+    reminder_date?: string;
+    reminder_time: string;
+    recurring_type?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+    stopping_date?: string;
+    day_of_week?: string;
+    day_of_month?: number;
+    month_of_year?: number;
+  };
+  onPressConfirm: () => void;
+  onPressClose: () => void;
+  visible: boolean;
+}
+
+const PreviewReminder: React.FC<PreviewReminderProps> = ({
+  data,
+  onPressConfirm,
+  onPressClose,
+  visible,
+}) => {
+  const DetailsContainer = ({title, value}: {title: string; value: string}) => {
     return (
       <View style={{marginBottom: responsiveWidth(3)}}>
         <Text style={styles.detailsTitleStyle}>{title}</Text>
@@ -29,13 +54,33 @@ const PreviewReminder = ({onPressConfirm, onPressClose, visible}: any) => {
     );
   };
 
+  const formatRecurringDetails = () => {
+    if (data.reminder_type !== 'recurring' || !data.recurring_type) return '';
+
+    let details = '';
+    switch (data.recurring_type) {
+      case 'daily':
+        details = 'Daily';
+        break;
+      case 'weekly':
+        details = `Weekly on ${data.day_of_week}`;
+        break;
+      case 'monthly':
+        details = `Monthly on day ${data.day_of_month}`;
+        break;
+      case 'yearly':
+        details = `Yearly on ${moment().month(data.month_of_year! - 1).format('MMMM')} ${data.day_of_month}`;
+        break;
+    }
+    return details;
+  };
+
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <ScrollView>
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={styles.headerContainer}>
               <Text style={styles.formTitle}>{'Reminder Preview'}</Text>
               <TouchableOpacity onPress={onPressClose}>
                 <Image
@@ -45,50 +90,73 @@ const PreviewReminder = ({onPressConfirm, onPressClose, visible}: any) => {
               </TouchableOpacity>
             </View>
 
-            <DetailsConainer
+            <DetailsContainer
               title={'Reminder Name'}
-              value={'Customer Birthday'}
-            />
-            <DetailsConainer
-              title={'Customer Name'}
-              value={'Mahi Patel, Tanvi Patel'}
+              value={data.reminder_name}
             />
 
-            {/* Message */}
+            {/* Message Preview */}
             <View style={styles.cardContainer}>
               <View style={styles.cardSubContainer}>
-                <Text>{templetDetails?.message}</Text>
+                <Text style={styles.messageText}>
+                  {data.variables.map(v => `${v.name}: ${v.value}`).join('\n')}
+                </Text>
               </View>
             </View>
 
-            {/* extra detail */}
+            {/* Reminder Details */}
             <View style={{flexDirection: 'row'}}>
               <View style={{flex: 1}}>
-                <DetailsConainer title={'Reminder Type'} value={'Recurring'} />
+                <DetailsContainer 
+                  title={'Reminder Type'} 
+                  value={data.reminder_type === 'one_Time' ? 'One Time' : 'Recurring'} 
+                />
               </View>
-              <View style={{flex: 1}}>
-                <DetailsConainer title={'Recurring Type'} value={'Weekly'} />
-              </View>
+              {data.reminder_type === 'recurring' && (
+                <View style={{flex: 1}}>
+                  <DetailsContainer 
+                    title={'Recurring Type'} 
+                    value={data.recurring_type?.charAt(0).toUpperCase() + data.recurring_type?.slice(1) || ''} 
+                  />
+                </View>
+              )}
             </View>
 
             <View style={{flexDirection: 'row'}}>
               <View style={{flex: 1}}>
-                <DetailsConainer title={'Repeat Every'} value={'Sunday'} />
+                {data.reminder_type === 'one_Time' ? (
+                  <DetailsContainer 
+                    title={'Date'} 
+                    value={moment(data.reminder_date).format('DD MMM YYYY')} 
+                  />
+                ) : (
+                  <DetailsContainer 
+                    title={'Repeat Schedule'} 
+                    value={formatRecurringDetails()} 
+                  />
+                )}
               </View>
               <View style={{flex: 1}}>
-                <DetailsConainer title={'Time'} value={'7:00 AM'} />
+                <DetailsContainer 
+                  title={'Time'} 
+                  value={moment(data.reminder_time, 'HH:mm:ss').format('hh:mm A')} 
+                />
               </View>
             </View>
 
-            <DetailsConainer title={'Stop Repeating'} value={'31 Dec 2025'} />
+            {data.reminder_type === 'recurring' && data.stopping_date && (
+              <DetailsContainer 
+                title={'Stop Repeating'} 
+                value={moment(data.stopping_date).format('DD MMM YYYY')} 
+              />
+            )}
           </ScrollView>
-          {/* Button */}
+
+          {/* Confirm Button */}
           <TouchableOpacity
             style={styles.nextButton}
-            onPress={() => {
-              console.log('onPressConfirm');
-              onPressConfirm()}}>
-            <Text style={styles.nextButtonText}>{'confirmed schedule'}</Text>
+            onPress={onPressConfirm}>
+            <Text style={styles.nextButtonText}>{'Confirm Schedule'}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -111,21 +179,24 @@ const styles = StyleSheet.create({
     maxHeight: '85%',
     padding: responsiveWidth(4),
   },
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: responsiveWidth(4),
+  },
   formTitle: {
     fontSize: fontSize.regular,
     fontWeight: '600',
-    marginBottom: responsiveWidth(0),
   },
   detailsValue: {
     fontSize: fontSize.regular,
     fontFamily: fontFamily.regular,
-    marginBottom: responsiveWidth(0),
     color: color.black,
   },
   detailsTitleStyle: {
     fontSize: fontSize.minix,
     fontFamily: fontFamily.regular,
-    marginBottom: responsiveWidth(0),
     color: color.grayText,
   },
   closeIconStyle: {
@@ -139,6 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',
+    marginTop: responsiveWidth(4),
   },
   nextButtonText: {
     color: '#FFFFFF',
@@ -158,6 +230,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveWidth(2),
     paddingTop: responsiveWidth(3),
     paddingBottom: responsiveWidth(4),
-    minHeight: responsiveHeight(30),
+    minHeight: responsiveHeight(20),
+  },
+  messageText: {
+    fontSize: fontSize.regularx,
+    fontFamily: fontFamily.regular,
+    color: color.black,
+    lineHeight: fontSize.regularx * 1.5,
   },
 });
